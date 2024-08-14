@@ -30,3 +30,4 @@ stack.plots[1].draw_interval(axs[1,1])
 axs[1,1].set_xlabel(r'$\delta_{CP}$')
 
 plt.show()
+
