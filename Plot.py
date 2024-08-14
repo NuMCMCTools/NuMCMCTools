@@ -48,29 +48,29 @@ class Plot:
             self.hist = self.hist/self.areas/total
 
             
-    def draw_plot(self):
+    def draw_plot(self, ax):
 
         if(self.nvar==1):
-            plt.stairs(self.hist,self.edges[0])
-            plt.savefig("test1d.pdf")
-            plt.show()
+            ax.stairs(self.hist,self.edges[0])
+            ax.set_xlabel(self.variables[0])
 
         if(self.nvar==2):
-            plt.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-            plt.savefig("test2d.pdf")
+            ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+            ax.set_xlabel(self.variables[0])
+            ax.set_ylabel(self.variables[1])
+            
 
-    def draw_interval(self):
+    def draw_interval(self, ax):
 
         if(self.nvar==1):
-            plt.stairs(self.intervals,self.edges[0])
-            plt.savefig("testinterval1d.pdf")
-            plt.show()
+            ax.stairs(self.intervals,self.edges[0])
+            ax.set_xlabel(self.variables[0])
         
         if(self.nvar==2):
-            plt.pcolormesh(self.edges[0], self.edges[1], self.intervals.T)
-            plt.contour(self.intervals.T, np.sort(self.levels))
-            plt.savefig("testinterval2d.pdf")
-            plt.show()
+            ax.pcolormesh(self.edges[0], self.edges[1], self.intervals.T)
+            ax.contour(self.intervals.T, np.sort(self.levels))
+            ax.set_xlabel(self.variables[0])
+            ax.set_ylabel(self.variables[1])
 
         
     def make_intervals(self,levels):
