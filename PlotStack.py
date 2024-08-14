@@ -18,5 +18,8 @@ class PlotStack:
                     data = np.stack((batch[plot.variables[0]],batch[plot.variables[1]]))
                     plot.fill_plot(data)
 
+        for plot in self.plots:
+            plot.finalize_histogram()
+
         
  
