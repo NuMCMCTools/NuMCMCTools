@@ -17,8 +17,8 @@ stack.fill_plots()
 stack.plots[0].draw_plot()
 stack.plots[1].draw_plot()
 
-#stack.plots[0].make_intervals([0.68,0.95])
-#stack.plots[0].draw_interval()
+stack.plots[0].make_intervals([0.68,0.95])
+stack.plots[0].draw_interval()
 
-#stack.plots[1].make_intervals([0.68,0.95])
-#stack.plots[1].draw_interval()
+stack.plots[1].make_intervals([0.68,0.95])
+stack.plots[1].draw_interval()
