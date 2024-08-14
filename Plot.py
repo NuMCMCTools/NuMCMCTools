@@ -68,7 +68,7 @@ class Plot:
         
         if(self.nvar==2):
             plt.pcolormesh(self.edges[0], self.edges[1], self.intervals.T)
-            #plt.contour(self.intervals.T, np.sort(self.levels))
+            plt.contour(self.intervals.T, np.sort(self.levels))
             plt.savefig("testinterval2d.pdf")
             plt.show()
 
@@ -90,19 +90,15 @@ class Plot:
         process_sum = 0
         if(self.nvar==1):
             self.intervals[index_sort_unrav[0][index]] = self.levels[nlev]
-            print(index_sort_unrav[0][index],self.intervals[index_sort_unrav[0][index]] )
             while nlev >= 0:
                 process_sum+=self.hist[index_sort_unrav[0][index]]*self.areas[index_sort_unrav[0][index]]
-                print(index_sort_unrav[0][index],process_sum/total )
                 index+=1
                 if(process_sum/total < self.levels[nlev]):
                     self.intervals[index_sort_unrav[0][index]] = self.levels[nlev]
-                    print(index_sort_unrav[0][index],self.intervals[index_sort_unrav[0][index]] )
                 else:
                     nlev-=1
                     if(nlev>=0):
                         self.intervals[index_sort_unrav[0][index]] = self.levels[nlev]
-            print(self.intervals)
         if(self.nvar==2):       
             self.intervals[index_sort_unrav[0][index],index_sort_unrav[1][index]] = self.levels[nlev]
             while nlev >= 0:
