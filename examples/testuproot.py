@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
 import uproot
-import PlotStack
+import os
+from numcmctools import PlotStack
 import numpy as np
 import matplotlib.pyplot as plt
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+root_file_path = os.path.join(script_dir, "testchaindata.root")
 
-tree = uproot.open("testchaindata.root:mcmc")
-stack = PlotStack.PlotStack(tree)
+tree = uproot.open(f"{root_file_path}:mcmc")
+stack = PlotStack(tree)
 
 stack.add_plot(["Deltam2_32", "Theta23"],[],[50,50],[[2.2E-3,2.7E-3],[0.7,0.9]])
 stack.add_plot(["DeltaCP"],[],[-np.pi, -0.95*np.pi, -0.9*np.pi, -0.85*np.pi, -0.8*np.pi, -0.75*np.pi,
