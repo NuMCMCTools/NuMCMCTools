@@ -1,4 +1,4 @@
-import Plot
+from .plot import Plot
 import numpy as np
 
 class PlotStack:
@@ -7,7 +7,7 @@ class PlotStack:
         self.plots = []
 
     def add_plot(self,variables, priors, bins, axrange=None, mo_option=False):
-        self.plots.append(Plot.Plot(variables, priors, bins, axrange, mo_option))
+        self.plots.append(Plot(variables, priors, bins, axrange, mo_option))
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         for batch in self.chain.iterate(step_size=batchsize, library="np", entry_stop=n_steps):
