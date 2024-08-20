@@ -26,13 +26,13 @@ class MCMCSamples:
         self.tree = uproot.open(f"{self.filepath}:{self.treename}")
         # Get self.variables
         self.variables = {}
-        self._check_and_extract_variables()
+        self.__check_and_extract_variables()
         # Get self.priors
-        self._check_and_extract_priors()
+        self.__check_and_extract_priors()
 
         print(f"Successfully initialised MCMCSamples object with ROOT file '{self.filepath}' and '{self.treename}' TTree inside")
 
-    def _check_and_extract_variables(self):
+    def __check_and_extract_variables(self):
         """
         Check if the compulsory variables exist, fill the "variables" map and
         create attributes for them.
@@ -46,10 +46,10 @@ class MCMCSamples:
             else:
                 raise ValueError(f"Compulsory variable '{var}' not found in the TTree.")
 
-        self._expand_variables()
+        self.__expand_variables()
 
 
-    def _expand_variables(self):
+    def __expand_variables(self):
         """
         Add extra variables that should be available to the user, that are not
         already in the input MCMC chain, e.g. Jarlskog-Invariant.
@@ -76,11 +76,12 @@ class MCMCSamples:
 
         self.variables[name] = Variable(name, function)
 
-    def _check_and_extract_priors(self):
+    def __check_and_extract_priors(self):
         """
         Check if the default priors exist for each of the compulsory variables,
         and fill the self.priors map. Fill the transform map here too?
         """
+        pass
 
     def __repr__(self):
        """
