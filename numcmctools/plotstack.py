@@ -31,15 +31,16 @@ class PlotStack:
     def fill_plots(self,n_steps=None, batchsize=100000):
         for batch in self.chain.tree.iterate(step_size=batchsize, library="np", entry_stop=n_steps):
 
-            evaluated_data = {}
-            for variable in self.plotted_variables:
-                evaluated_data[variable] = self.chain.variables[variable].evaluate(batch)
+            for var in self.plotted_variables:
+                if var in batch:
+                    continue
+                batch[var] = self.chain.variables[var].evaluate(batch)
 
             for plot in self.plots:
                 if (plot.nvar==1):
-                    plot.fill_plot(evaluated_data[plot.variables[0]])
+                    plot.fill_plot(batch[plot.variables[0]])
                 if(plot.nvar==2):
-                    data = np.stack((evaluated_data[plot.variables[0]],evaluated_data[plot.variables[1]]))
+                    data = np.stack((batch[plot.variables[0]],batch[plot.variables[1]]))
                     plot.fill_plot(data)
 
         for plot in self.plots:
