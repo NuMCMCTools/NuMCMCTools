@@ -51,6 +51,9 @@ class MCMCSamples:
             return np.sin(2 * data["Theta12"]) * np.sin(2 * data["Theta13"]), * np.sin(2 * data["Theta23"]) * sin(data["DeltaCP"])
         self.variables["JarlskogInvariant"] = Variable("JarlskogInvariant", jarlskog_invariant)
 
+    def add_variable(self, _name: str, _function: Callable[[Dict[str, np.ndarray]], np.ndarray]):
+        self.variables[_name] = Variable(_name, _function)
+
     def _check_and_extract_priors(self):
         """
         Check if the default priors exist for each of the compulsory variables,
