@@ -15,11 +15,11 @@ samples = MCMCSamples(root_file_path, "mcmc")
 
 # Define custom variable: ssth23
 def ssth23(Theta23) ->np.ndarray:
-    return np.pow(np.sin(Theta23), 2)
+    return np.power(np.sin(Theta23), 2)
 
 # Define custom variable: ss2th13
 def ss2th13(Theta13) ->np.ndarray:
-    return np.pow(np.sin(2*Theta13), 2)
+    return np.power(np.sin(2*Theta13), 2)
 
 # Define custom variable: Ue3
 def AbsUe3(Theta13, DeltaCP):

@@ -57,7 +57,7 @@ class MCMCSamples:
 
         # Adding JarlskogInvariant
         def jarlskog_invariant(Theta12, Theta13, Theta23, DeltaCP):
-            jarlskog = np.cos(Theta12) * np.pow(np.cos(Theta13), 2) * np.cos(Theta23) * np.sin(Theta12) * np.sin(Theta13) * np.sin(Theta23) * np.sin(DeltaCP)
+            jarlskog = np.cos(Theta12) * np.power(np.cos(Theta13), 2) * np.cos(Theta23) * np.sin(Theta12) * np.sin(Theta13) * np.sin(Theta23) * np.sin(DeltaCP)
             return jarlskog
         self.variables["JarlskogInvariant"] = Variable("JarlskogInvariant", jarlskog_invariant)
 
