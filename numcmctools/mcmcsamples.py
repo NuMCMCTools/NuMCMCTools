@@ -42,17 +42,39 @@ class MCMCSamples:
         for var in self.compulsory_variables:
             if var in keys:
                 # Create new variable
-                self.variables[var] = Variable(var, lambda data, var=var: data[var])
+                self.variables[var] = Variable(var, lambda **kwargs: kwargs[var])
             else:
                 raise ValueError(f"Compulsory variable '{var}' not found in the TTree.")
 
+        self._expand_variables()
+
+
+    def _expand_variables(self):
+        """
+        Add extra variables that should be available to the user, that are not
+        already in the input MCMC chain, e.g. Jarlskog-Invariant.
+        """
+
         # Adding JarlskogInvariant
-        def jarlskog_invariant(data: Dict[str, np.ndarray]) ->np.ndarray:
-            return np.sin(2 * data["Theta12"]) * np.sin(2 * data["Theta13"]), * np.sin(2 * data["Theta23"]) * sin(data["DeltaCP"])
+        def jarlskog_invariant(Theta12, Theta13, Theta23, DeltaCP):
+            jarlskog = np.cos(Theta12) * np.pow(np.cos(Theta13), 2) * np.cos(Theta23) * np.sin(Theta12) * np.sin(Theta13) * np.sin(Theta23) * np.sin(DeltaCP)
+            return jarlskog
         self.variables["JarlskogInvariant"] = Variable("JarlskogInvariant", jarlskog_invariant)
 
-    def add_variable(self, _name: str, _function: Callable[[Dict[str, np.ndarray]], np.ndarray]):
-        self.variables[_name] = Variable(_name, _function)
+    def add_variable(self, name: str, function: Callable[..., np.ndarray]):
+        """
+        Add a custom variable to the MCMCSamples object. Required if want to
+        plot a custom variable.
+
+        :param name: Unique name of the custom variable.
+        :param function: Function to compute the value fo the custom variable.
+                         The function can accept keyqord arguments where keys match the names of
+                         already defined variables.
+        """
+        if name in self.variables:
+           raise ValueError(f"Variable '{name}' is already defined!")
+
+        self.variables[name] = Variable(name, function)
 
     def _check_and_extract_priors(self):
         """
