@@ -37,12 +37,8 @@ class PlotStack:
                 batch[var] = self.chain.variables[var].evaluate(batch)
 
             for plot in self.plots:
-                if (plot.nvar==1):
-                    plot.fill_plot(batch[plot.variables[0]])
-                if(plot.nvar==2):
-                    data = np.stack((batch[plot.variables[0]],batch[plot.variables[1]]))
-                    plot.fill_plot(data)
-
+                plot.fill_plot(batch)
+                
         for plot in self.plots:
             plot.finalize_histogram()
 
