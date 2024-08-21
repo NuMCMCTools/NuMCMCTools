@@ -29,14 +29,13 @@ class Plot:
     def fill_plot(self, data, weights=None):
         if not self.finalized:
             if(self.nvar==1):
-                hist, edges = np.histogram(data, self.bins, self.axrange, weights = weights)
+                hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights)
                 self.hist += hist
             elif(self.nvar==2):
-                hist, edgesx, edgesy = np.histogram2d(data[0,:], data[1,:], self.bins, self.axrange, weights = weights)
+                hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange, weights = weights)
                 self.hist += hist
         else:
             print("histogram was finalized already! No filling allowed!")
-
 
     def finalize_histogram(self):
         if(not self.finalized):
