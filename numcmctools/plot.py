@@ -4,6 +4,20 @@ import matplotlib.pyplot as plt
 class Plot:
         
     def __init__(self, variables, priors, bins, axrange=None, mo_option=False):
+        """
+        Initialise a Plot instance.
+
+        :variables: Array of strings indicating the variables to be plotted.
+                    Only 1D and 2D are currently supported. Custom variables can be declared
+                    when through the mcmcsamples class
+        :priors: TBD
+        :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
+               documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
+               or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
+        :axrange: See as for bins
+        :mo_option: When creating intervals, calculate intervals jointly over the mass hierarchies (True) or 
+                    marginalized over hierarchies (False). Default is False; to be implemented.
+        """
         self.variables = variables
         self.priors = priors
         self.bins = bins
@@ -27,6 +41,12 @@ class Plot:
         self.hist_interval = []
         
     def fill_plot(self, data, weights=None):
+        """
+        Fill the plot. If the plot has been finalized, no more filling is allowed.
+
+        :data: An array of the data
+        :weights: Data weights
+        """
         if not self.finalized:
             if(self.nvar==1):
                 hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights)
@@ -38,6 +58,9 @@ class Plot:
             print("histogram was finalized already! No filling allowed!")
 
     def finalize_histogram(self):
+        """
+        Finalize the plot. The plot is finalized to make a probability density function.
+        """
         if(not self.finalized):
             if(self.nvar ==1):
                 self.areas = np.diff(self.edges[0])
@@ -48,7 +71,10 @@ class Plot:
 
             
     def draw_plot(self, ax):
-
+        """
+        Draw the plot. 
+        :ax: matplotlib axes to draw the plot on
+        """
         if(self.nvar==1):
             ax.stairs(self.hist,self.edges[0])
             ax.set_xlabel(self.variables[0])
@@ -60,7 +86,10 @@ class Plot:
             
 
     def draw_interval(self, ax):
-
+        """
+        Draw the intervals. To be improved
+        :ax: matplotlib axes to draw the plot on
+        """
         if(self.nvar==1):
             ax.stairs(self.intervals,self.edges[0])
             ax.set_xlabel(self.variables[0])
@@ -73,6 +102,11 @@ class Plot:
 
         
     def make_intervals(self,levels):
+        """
+        Create intervals. 
+        :levels: an array of numbers between 0 and 1 representing the credible interval
+                 levels required. 
+        """
         if(not self.finalized):
             self.finalize_histogram()
         
