@@ -4,7 +4,7 @@ import numpy as np
 
 class PlotStack:
     def __init__(self, chain: MCMCSamples):
-       """
+        """
         Initialise a PlotStack instance.
 
         :chain: An instance of MCMCSamples that plots will be made from
@@ -65,14 +65,14 @@ class PlotStack:
                 
         for plot in self.plots:
             plot.finalize_histogram()
-
-     def make_intervals(self,levels):
+            
+    def make_intervals(self,levels):
         """
         Make intervals for all the plots in the stack at the same credible interval levels.
 
         :levels: an array of numbers between 0 and 1 representing the credible interval
-                 levels required. 
-        """    
+                 levels required. """    
+
         for plot in self.plots:
             plot.make_intervals(levels)       
  

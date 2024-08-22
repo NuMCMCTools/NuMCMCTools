@@ -54,4 +54,16 @@ stack.plots[2].draw_plot(axs[0,2])
 stack.plots[3].draw_plot(axs[1,0])
 stack.plots[4].draw_plot(axs[1,1])
 stack.plots[5].draw_plot(axs[1,2])
+#plt.show()
+
+stack.make_intervals([0.68,0.95])
+
+# Plot with pyplot
+fig2, axs2 = plt.subplots(2, 3)
+stack.plots[0].draw_interval(axs2[0,0])
+stack.plots[1].draw_interval(axs2[0,1])
+stack.plots[2].draw_interval(axs2[0,2])
+stack.plots[3].draw_interval(axs2[1,0])
+stack.plots[4].draw_interval(axs2[1,1])
+stack.plots[5].draw_interval(axs2[1,2])
 plt.show()

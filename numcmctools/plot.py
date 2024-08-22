@@ -91,7 +91,9 @@ class Plot:
         :ax: matplotlib axes to draw the plot on
         """
         if(self.nvar==1):
-            ax.stairs(self.intervals,self.edges[0])
+            ax.stairs(self.hist,self.edges[0], color='black')
+            for lev in self.levels:
+                ax.stairs(self.hist*np.less_equal(self.intervals,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
             ax.set_xlabel(self.variables[0])
         
         if(self.nvar==2):
@@ -99,8 +101,8 @@ class Plot:
             ax.contour(self.intervals.T, np.sort(self.levels))
             ax.set_xlabel(self.variables[0])
             ax.set_ylabel(self.variables[1])
-
         
+            
     def make_intervals(self,levels):
         """
         Create intervals. 
