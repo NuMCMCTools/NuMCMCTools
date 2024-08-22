@@ -79,7 +79,6 @@ class Plot:
 
         if(self.nvar==2):
             cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-            plt.colorbar(cm)
             ax.set_xlabel(self.variables[0])
             ax.set_ylabel(self.variables[1])
             
