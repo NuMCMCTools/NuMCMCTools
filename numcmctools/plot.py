@@ -37,9 +37,7 @@ class Plot:
         else:
             print("too many or too few variables!")
             return
-        
-        self.hist_interval = []
-        
+                
     def fill_plot(self, data, weights=None):
         """
         Fill the plot. If the plot has been finalized, no more filling is allowed.
@@ -80,7 +78,7 @@ class Plot:
             ax.set_xlabel(self.variables[0])
 
         if(self.nvar==2):
-            ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+            cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
             ax.set_xlabel(self.variables[0])
             ax.set_ylabel(self.variables[1])
             
@@ -90,19 +88,26 @@ class Plot:
         Draw the intervals. To be improved
         :ax: matplotlib axes to draw the plot on
         """
+        #need to put in a check if the intervals have been calculated
         if(self.nvar==1):
             ax.stairs(self.hist,self.edges[0], color='black')
-            for lev in self.levels:
-                ax.stairs(self.hist*np.less_equal(self.intervals,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+            for lev in self.prob_levels:
+                ax.stairs(self.hist*np.greater_equal(self.hist,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
             ax.set_xlabel(self.variables[0])
         
         if(self.nvar==2):
-            ax.pcolormesh(self.edges[0], self.edges[1], self.intervals.T)
-            ax.contour(self.intervals.T, np.sort(self.levels))
+
+            linestyles_base = ['solid','dashed','dashdot','dotted']
+            linestyles=['']*len(self.prob_levels)
+            for i in range(len(self.prob_levels)):
+                linestyles[i] = linestyles_base[i%len(linestyles_base)]
+            linestyles = list(reversed(linestyles))
+
+            cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+            ax.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
             ax.set_xlabel(self.variables[0])
             ax.set_ylabel(self.variables[1])
         
-            
     def make_intervals(self,levels):
         """
         Create intervals. 
@@ -118,33 +123,26 @@ class Plot:
         index_sort = np.argsort(-1*self.hist*self.areas, axis=None) #what a stupid hack--order high to low
         index_sort_unrav = np.unravel_index(index_sort,self.hist.shape)
 
-        self.intervals = np.ones(self.hist.shape)
+        self.prob_levels = np.zeros(self.levels.shape)
 
         total = np.sum(self.hist*self.areas)
         index = 0
         process_sum = 0
         if(self.nvar==1):
-            self.intervals[index_sort_unrav[0][index]] = self.levels[nlev]
             while nlev >= 0:
                 process_sum+=self.hist[index_sort_unrav[0][index]]*self.areas[index_sort_unrav[0][index]]
                 index+=1
-                if(process_sum/total < self.levels[nlev]):
-                    self.intervals[index_sort_unrav[0][index]] = self.levels[nlev]
-                else:
+                if(process_sum/total > self.levels[nlev]):
+                    self.prob_levels[nlev]=self.hist[index_sort_unrav[0][index-1]]
                     nlev-=1
-                    if(nlev>=0):
-                        self.intervals[index_sort_unrav[0][index]] = self.levels[nlev]
         if(self.nvar==2):       
-            self.intervals[index_sort_unrav[0][index],index_sort_unrav[1][index]] = self.levels[nlev]
             while nlev >= 0:
                 process_sum+=self.hist[index_sort_unrav[0][index],index_sort_unrav[1][index]]*self.areas[index_sort_unrav[0][index],index_sort_unrav[1][index]]
                 index+=1
-                if(process_sum/total < self.levels[nlev]):
-                    self.intervals[index_sort_unrav[0][index],index_sort_unrav[1][index]] = self.levels[nlev]
-                else:
+                if(process_sum/total > self.levels[nlev]):
+                    self.prob_levels[nlev]=self.hist[index_sort_unrav[0][index-1],index_sort_unrav[1][index-1]]
                     nlev-=1
-                    if(nlev>=0):
-                        self.intervals[index_sort_unrav[0][index],index_sort_unrav[1][index]] = self.levels[nlev]
+            
                         
         
         
