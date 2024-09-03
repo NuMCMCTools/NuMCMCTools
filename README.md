@@ -14,12 +14,12 @@ The expected input format for this code is a ROOT file containg at
 least one TTree. The tree can have any name. Inside the tree, there
 will be at least six branches called:
 
-* DeltaCP, in radians, across any 2pi interval
-* Theta13, in radians, [0, pi/2]
-* Theta23,  in radians, [0, pi/2]
-* Theta12,  in radians, [0, pi/2]
-* Deltam2_32, in eV^2
-* Deltam2_21, in eV^2
+* DeltaCP, in radians, across any 2$\pi$ interval
+* Theta13, in radians, [0, $\pi$/2]
+* Theta23,  in radians, [0, $\pi$/2]
+* Theta12,  in radians, [0, $\pi$/2]
+* Deltam2_32, in eV$^2$
+* Deltam2_21, in eV$^2$
 
 which correspond to the standard parameters of neutrino mixing; the
 first four are the PMNS angles, and the last two are the mass
