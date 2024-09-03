@@ -106,8 +106,8 @@ The output of this example should look as follows
 
 ## Derived Variables
 
-Variables derived from the six required parametersfor example,
-$\sin^2\theta_{23}$---can be defined and used for plotting. Each new
+Variables derived from the six required parameters—for example,
+$\sin^2\theta_{23}$-can be defined and used for plotting. Each new
 variable must be given a unique name and defined as a function which
 uses the required parameters as input variables, spelled exactly as
 they are defined above. 
