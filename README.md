@@ -68,14 +68,35 @@ plot stack for very large input trees; the second restricts the number
 of steps read from the tree to be `batchsize` at any given time, which
 is helpful for memory management. Above a batch size of approximately
 100000, there is no performance impact on the time it takes to read
-large trees and fill plots.
+large trees and fill plots; this value is therefore set at the
+default. 
 
+After the histograms are filled, they are normalized to create
+probability _density_ functions, such that individual bins are
+normalized to the width/area of the bin and the integral is normalized
+to 1. 
+
+Credible intervals can be created by calling `make_intervals`
+on either the plot stack or individual plots within the stack. The
+function takes an array of credible interval levels. 
+
+PDFs and intervals can be drawn with `draw_plot` and `draw_interval`
+respectively, and can take an `Axes` argument from matplotlib. (TO BE
+IMPLEMENTED: automatic figure/axes)
+
+An example of the plotting features is in `examples/testuproot.py` and
+can be run as follows: 
+
+Example that loads example chain and makes example plots (`examples/testuproot.py`):
+ ```
+ python -m examples.testuproot
+```
 
 
 
 ## Derived Variables
 
-Variables derived from the six required parameters---for example,
+Variables derived from the six required parametersfor example,
 $\sin^2\theta_23$---can be defined and used for plotting. Each new
 variable must be given a unique name and defined as a function which
 uses the required parameters as input variables, spelled exactly as
@@ -95,12 +116,3 @@ can be run as follows:
 ## Changing Priors
 
 Gotta do some work, gotta change some priors
-
-
-## Examples:
-
-Example that loads example chain and makes example plots (`examples/testuproot.py`):
- ```
- python -m examples.testuproot
-```
-
