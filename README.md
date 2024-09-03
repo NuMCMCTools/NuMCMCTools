@@ -1,5 +1,12 @@
 # NuMCMCTools
-MCMC tools for neutrino oscillations
+
+This package is intended as a lightweight tool to assist in analysis using 
+public releases of MCMC chains from neutrino oscilliation analyses. The 
+following experiments have released data compatible with this software:
+
+* Experiment 1
+* Experiment 2
+
 
 ## File Format
 
