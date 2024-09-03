@@ -3,8 +3,8 @@ MCMC tools for neutrino oscillations
 
 ## File Format
 
-The expected input format for this code is a root file containg at
-least one tree. The tree can have any name. Inside the tree, there
+The expected input format for this code is a ROOT file containg at
+least one TTree. The tree can have any name. Inside the tree, there
 will be at least six branches called:
 
 * DeltaCP, in radians, across any 2pi interval
@@ -31,6 +31,9 @@ filepath for the input file and the name of the oscillation parameters
 tree, and an optional argument for additional variables to be loaded
 (TO BE IMPLEMENTED). 
 
+An example tree (`examples/testchaindata.root`) with the required
+features is provided for testing the functionality of this software. 
+
 A very basic script for loading the example tree is
 `examples/load_mcmc.py` and can be run as follows:
 
@@ -50,7 +53,22 @@ A very basic script for loading the example tree is
 
 ## Derived Variables
 
+Variables derived from the six required parameters---for example,
+$\sin^2\theta_23$---can be defined and used for plotting. Each new
+variable must be given a unique name and defined as a function which
+uses the required parameters as input variables, spelled exactly as
+they are defined above. 
 
+The new variable is then attached to an instance of the `mcmcsamples`
+class using the `add_variable` function, which takes as arguments the
+name of the new variable and the function defining it. 
+
+An example of this feature is in `examples/custom_variables.py` and
+can be run as follows:
+
+ ```
+ python -m examples.custom_variables
+```
 
 ## Changing Priors
 
@@ -59,17 +77,8 @@ Gotta do some work, gotta change some priors
 
 ## Examples:
 
-Loads example chain into MCMCSamples object (`examples/load_mcmc.py`):
- ```
- python -m examples.load_mcmc
-```
-
 Example that loads example chain and makes example plots (`examples/testuproot.py`):
  ```
  python -m examples.testuproot
 ```
 
-Example that loads example chain, creates custom Variables and makes example plots with them (`examples/custom_variables.py`):
- ```
- python -m examples.custom_variables
-```
