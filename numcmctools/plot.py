@@ -131,10 +131,10 @@ class Plot:
         if(self.nvar==2):
             if self.mo_option:
                 cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
-                ax[0].set_xlabel(self.variables[0])
+                ax[0].set_xlabel(self.variables[0]+" NO")
                 ax[0].set_ylabel(self.variables[1])
                 cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
-                ax[1].set_xlabel(self.variables[0])
+                ax[1].set_xlabel(self.variables[0]+" IO")
             else:
                 cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
                 ax.set_xlabel(self.variables[0])
@@ -149,6 +149,7 @@ class Plot:
         :ax: matplotlib axes to draw the plot on
         """
 
+        #gotta fix this
         if self.mo_option:
             ax = sfig.subplots(1,2, sharey=True)
         else:
@@ -183,11 +184,11 @@ class Plot:
             if self.mo_option:
                 cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
                 ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                ax[0].set_xlabel(self.variables[0])
+                ax[0].set_xlabel(self.variables[0]+" NO")
                 ax[0].set_ylabel(self.variables[1])
                 cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
                 ax[1].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                ax[1].set_xlabel(self.variables[0])
+                ax[1].set_xlabel(self.variables[0]+" IO")
             else:
                 cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
                 ax.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')

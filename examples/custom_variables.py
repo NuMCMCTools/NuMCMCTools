@@ -47,7 +47,8 @@ stack.add_plot(["JarlskogInvariant", "DeltaCP"],[],[50, 50], [[-0.05, 0.05], [-n
 stack.fill_plots()
 
 # Plot with pyplot
-fig, axs = plt.subplots(2, 3)
+fig = plt.figure()
+axs = fig.subfigures(2, 3)
 stack.plots[0].draw_plot(axs[0,0])
 stack.plots[1].draw_plot(axs[0,1])
 stack.plots[2].draw_plot(axs[0,2])
@@ -59,7 +60,8 @@ stack.plots[5].draw_plot(axs[1,2])
 stack.make_intervals([0.68,0.95])
 
 # Plot with pyplot
-fig2, axs2 = plt.subplots(2, 3)
+fig2 = plt.figure()
+axs2 = fig2.subfigures(2, 3)
 stack.plots[0].draw_interval(axs2[0,0])
 stack.plots[1].draw_interval(axs2[0,1])
 stack.plots[2].draw_interval(axs2[0,2])

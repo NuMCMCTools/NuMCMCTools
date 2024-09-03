@@ -40,33 +40,33 @@ stack.add_plot(["SinSqTheta23"], [], 50, [0.35, 0.65])
 stack.add_plot(["SinSqTheta23"], [], 50, [0.35, 0.65],True)
 
 # 2D plots
-stack.add_plot(["JarlskogInvariant", "AbsUe3"], [], [50, 50], [[-0.05, 0.05], [0.1, 0.25]],True)
-#stack.add_plot(["SinSqTheta23", "SinSq2Theta13"], [], [50, 50], [[0.35, 0.65], [0.075, 0.095]])
-#stack.add_plot(["JarlskogInvariant", "DeltaCP"],[],[50, 50], [[-0.05, 0.05], [-np.pi, np.pi]])
+stack.add_plot(["JarlskogInvariant", "AbsUe3"], [], [50, 50], [[-0.05, 0.05], [0.14, 0.16]],True)
+stack.add_plot(["SinSqTheta23", "SinSq2Theta13"], [], [50, 50], [[0.35, 0.65], [0.075, 0.095]])
+stack.add_plot(["JarlskogInvariant", "DeltaCP"],[],[50, 50], [[-0.05, 0.05], [-np.pi, np.pi]])
 
 # Fill the plots
 stack.fill_plots()
 
 # Plot with pyplot
 fig = plt.figure()
-axs = fig.subfigures(2, 2)
+axs = fig.subfigures(2, 3)
 stack.plots[0].draw_plot(axs[0,0])
 stack.plots[1].draw_plot(axs[0,1])
-stack.plots[2].draw_plot(axs[1,0])
-stack.plots[3].draw_plot(axs[1,1])
-#stack.plots[4].draw_plot(axs[1,1])
-#stack.plots[5].draw_plot(axs[1,2])
+stack.plots[2].draw_plot(axs[0,2])
+stack.plots[3].draw_plot(axs[1,0])
+stack.plots[4].draw_plot(axs[1,1])
+stack.plots[5].draw_plot(axs[1,2])
 #plt.show()
 
 stack.make_intervals([0.68,0.95])
 
 # Plot with pyplot
 fig2 = plt.figure()
-axs2 = fig2.subfigures(2, 2)
+axs2 = fig2.subfigures(2, 3)
 stack.plots[0].draw_interval(axs2[0,0])
 stack.plots[1].draw_interval(axs2[0,1])
-stack.plots[2].draw_interval(axs2[1,0])
-stack.plots[3].draw_interval(axs2[1,1])
-#stack.plots[4].draw_interval(axs2[1,1])
-#stack.plots[5].draw_interval(axs2[1,2])
+stack.plots[2].draw_interval(axs2[0,2])
+stack.plots[3].draw_interval(axs2[1,0])
+stack.plots[4].draw_interval(axs2[1,1])
+stack.plots[5].draw_interval(axs2[1,2])
 plt.show()
