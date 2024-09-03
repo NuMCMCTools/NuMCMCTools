@@ -30,13 +30,16 @@ class Plot:
         if(self.nvar==1):
             self.hist, edges = np.histogram([], self.bins, self.axrange, weights=[])
             self.edges.append(edges)
-            if(self.mo_option):
+            if self.mo_option:
                 self.hist_no = np.zeros(np.shape(self.hist))
                 self.hist_io = np.zeros(np.shape(self.hist))
         elif(self.nvar==2):
             self.hist, edgesx, edgesy = np.histogram2d([], [],self.bins, self.axrange, weights=[])
             self.edges.append(edgesx)
             self.edges.append(edgesy)
+            if self.mo_option:
+                self.hist_no = np.zeros(np.shape(self.hist))
+                self.hist_io = np.zeros(np.shape(self.hist))
         else:
             print("too many or too few variables!")
             return
@@ -63,8 +66,16 @@ class Plot:
                     hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights)
                     self.hist += hist
             elif(self.nvar==2):
-                hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange, weights = weights)
-                self.hist += hist
+                if self.mo_option:
+                    hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange,
+                                                              weights = weights*np.greater_equal(data["Deltam2_32"],0)*np.ones(np.shape(data["Deltam2_32"])))
+                    self.hist_no += hist
+                    hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange,
+                                                              weights = weights*np.less_equal(data["Deltam2_32"],0)*np.ones(np.shape(data["Deltam2_32"])))
+                    self.hist_io += hist
+                else:
+                    hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange, weights = weights)
+                    self.hist += hist
         else:
             print("histogram was finalized already! No filling allowed!")
 
@@ -73,7 +84,6 @@ class Plot:
         Finalize the plot. The plot is finalized to make a probability density function.
         """
         if(not self.finalized):
-
             if(self.nvar==1):
                 self.areas = np.diff(self.edges[0])
                 if(self.mo_option):
@@ -81,11 +91,20 @@ class Plot:
                     self.areas = np.concatenate((self.areas,self.areas))
             if(self.nvar==2):
                 self.areas = np.outer(np.diff(self.edges[0]),np.diff(self.edges[1]))
+                if self.mo_option:
+                    self.hist = np.concatenate((self.hist_no,self.hist_io))
+                    self.areas = np.concatenate((self.areas,self.areas))
             total = np.sum(self.hist)
             self.hist = self.hist/self.areas/total
             if self.mo_option:
-                self.hist_no = self.hist[:len(self.hist_no)]
-                self.hist_io = self.hist[len(self.hist_no):]
+                if(self.nvar==1):
+                    sh = np.shape(self.hist_no)
+                    self.hist_no = self.hist[:sh[0]]
+                    self.hist_io = self.hist[sh[0]:]
+                if(self.nvar==2):
+                    sh = np.shape(self.hist_no)
+                    self.hist_no = self.hist[:sh[0],:]
+                    self.hist_io = self.hist[sh[0]:,:]
             self.finalized = True
             
     def draw_plot(self, sfig):
@@ -110,11 +129,19 @@ class Plot:
                 ax.set_xlabel(self.variables[0])
 
         if(self.nvar==2):
-            cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-            ax.set_xlabel(self.variables[0])
-            ax.set_ylabel(self.variables[1])
+            if self.mo_option:
+                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                ax[0].set_xlabel(self.variables[0])
+                ax[0].set_ylabel(self.variables[1])
+                cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                ax[1].set_xlabel(self.variables[0])
+            else:
+                cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+                ax.set_xlabel(self.variables[0])
+                ax.set_ylabel(self.variables[1])
 
-        sfig.subplots_adjust(wspace=0, hspace=0)
+        if self.mo_option:
+            sfig.subplots_adjust(wspace=0)
 
     def draw_interval(self, sfig):
         """
@@ -153,10 +180,23 @@ class Plot:
                 linestyles[i] = linestyles_base[i%len(linestyles_base)]
             linestyles = list(reversed(linestyles))
 
-            cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-            ax.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-            ax.set_xlabel(self.variables[0])
-            ax.set_ylabel(self.variables[1])
+            if self.mo_option:
+                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                ax[0].set_xlabel(self.variables[0])
+                ax[0].set_ylabel(self.variables[1])
+                cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                ax[1].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                ax[1].set_xlabel(self.variables[0])
+            else:
+                cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+                ax.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                ax.set_xlabel(self.variables[0])
+                ax.set_ylabel(self.variables[1])
+
+        if self.mo_option:
+            sfig.subplots_adjust(wspace=0)
+
         
     def make_intervals(self,levels):
         """
