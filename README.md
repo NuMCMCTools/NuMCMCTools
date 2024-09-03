@@ -16,8 +16,8 @@ will be at least six branches called:
 
 which correspond to the standard parameters of neutrino mixing; the
 first four are the PMNS angles, and the last two are the mass
-splittings. For more information on the parameterization see the PDG
-review on neutrino mixing. 
+splittings. For more information on the parameterization see the [PDG
+review on neutrino mixing](https://pdg.lbl.gov/2024/web/viewer.html?file=../reviews/rpp2024-rev-neutrino-mixing.pdf). 
 
 Each parameter has some prior set by the original analyzers. The
 format of this information is TBD. 
@@ -43,12 +43,34 @@ A very basic script for loading the example tree is
 
 
 
-## Posterior Density Functions
+## Posterior Density Functions and Contours
+
+After the tree is loaded, an instance of `plotstack` can be created,
+which is initialized with an `mcmcsamples` instance. Individual
+`plot`s can be added to the plot stack. One and two dimensional plots
+are currently supported. 
+
+A plot is added to the plot stack with the `add_plot` function, which
+takes as arguments an array of the name(s) of the variables to be
+plotted as strings, any change in priors to be applied (TO BE
+IMPLEMENTED), the bins and axis ranges for the plots, as defined in
+[numpy.histogram](https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
+or
+[numpy.histogram2d](https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html),
+and finally whether to treat the two mass orderings separately
+(`True`) or together (`False`, default) (TO BE IMPLEMENTED).
+
+Any number of plots can be added to the stack. When all plots are
+created, they can be filled by calling `fill_plots`, which has two
+optional arguments. The first causes only the first
+`n_steps` to be filled from the tree; this is useful in testing the
+plot stack for very large input trees; the second restricts the number
+of steps read from the tree to be `batchsize` at any given time, which
+is helpful for memory management. Above a batch size of approximately
+100000, there is no performance impact on the time it takes to read
+large trees and fill plots.
 
 
-
-
-## Contours
 
 
 ## Derived Variables
