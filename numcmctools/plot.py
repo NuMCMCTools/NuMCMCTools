@@ -66,6 +66,7 @@ class Plot:
                 self.areas = np.outer(np.diff(self.edges[0]),np.diff(self.edges[1]))
             total = np.sum(self.hist)
             self.hist = self.hist/self.areas/total
+            self.finalized=True
 
             
     def draw_plot(self, ax):
