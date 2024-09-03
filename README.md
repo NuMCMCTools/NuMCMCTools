@@ -87,7 +87,8 @@ IMPLEMENTED: automatic figure/axes)
 An example of the plotting features is in `examples/testuproot.py` and
 can be run as follows: 
 
-Example that loads example chain and makes example plots (`examples/testuproot.py`):
+Example that loads example chain and makes example plots
+ (`examples/testuproot.py`) and can be run as follows:
  ```
  python -m examples.testuproot
 ```
