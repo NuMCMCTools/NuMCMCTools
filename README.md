@@ -92,7 +92,9 @@ Example that loads example chain and makes example plots
  ```
  python -m examples.testuproot
 ```
+The output of this example should look as follows
 
+![testuproot](https://github.com/user-attachments/assets/dff6d98e-4600-4b43-9425-3d2aad3d0bbc)
 
 
 ## Derived Variables
@@ -113,6 +115,9 @@ can be run as follows:
  ```
  python -m examples.custom_variables
 ```
+The output of this example should look as follows
+
+![custom_variables](https://github.com/user-attachments/assets/38ca3621-eba9-400c-a6ac-b4497a7e56e8)
 
 ## Changing Priors
 
