@@ -105,7 +105,7 @@ Example that loads example chain and makes example plots
 ```
 The output of this example should look as follows
 
-![testuproot](https://github.com/user-attachments/assets/dff6d98e-4600-4b43-9425-3d2aad3d0bbc)
+<img width="2869" alt="testuproot" src="https://github.com/user-attachments/assets/db68f411-2a06-4646-83c1-db8da26b5b41">
 
 
 ## Derived Variables
@@ -128,7 +128,7 @@ can be run as follows:
 ```
 The output of this example should look as follows
 
-![custom_variables](https://github.com/user-attachments/assets/38ca3621-eba9-400c-a6ac-b4497a7e56e8)
+<img width="2904" alt="custom_variables" src="https://github.com/user-attachments/assets/3cfb6af4-e188-49c7-8b68-2ab15f2586ac">
 
 ## Changing Priors
 
