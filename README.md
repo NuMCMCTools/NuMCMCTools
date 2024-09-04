@@ -35,8 +35,7 @@ the data release from the particular analysis for more detail.
 In this code, the class `mcmcsamples` is responsible for loading
 in the required information from the file. The constructor takes the
 filepath for the input file and the name of the oscillation parameters
-tree, and an optional argument for additional variables to be loaded
-(TO BE IMPLEMENTED). 
+tree, and an optional argument for additional variables to be loaded. 
 
 An example tree (`examples/testchaindata.root`) with the required
 features is provided for testing the functionality of this software. 

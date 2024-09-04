@@ -13,16 +13,20 @@ class MCMCSamples:
             "Deltam2_21",
             ]
 
-    def __init__(self, _filepath, _treename):
+    def __init__(self, _filepath, _treename, _branches=[]):
         """
         Initialise the MCMCSamples object.
 
         :param _filepath: Path to the ROOT file.
         :param _treename: Name of the TTree inside of the ROOT file.
+        :param _branches: Array of any additional branches to read in, treated as compulsory.
         """
 
         self.filepath = _filepath
         self.treename = _treename
+        self.branches = _branches
+        for b in self.branches:
+             self.compulsory_variables.append(b)
         self.tree = uproot.open(f"{self.filepath}:{self.treename}")
         # Get self.variables
         self.variables = {}
