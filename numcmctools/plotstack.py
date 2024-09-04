@@ -1,6 +1,7 @@
 from .plot import Plot
 from .mcmcsamples import MCMCSamples
 import numpy as np
+from tqdm import tqdm
 
 class PlotStack:
     def __init__(self, chain: MCMCSamples):
@@ -53,7 +54,13 @@ class PlotStack:
         :batchsize: number of steps to draw simultaneously from the chain, to manage memory 
                     requirements.
         """
-        for batch in self.chain.tree.iterate(step_size=batchsize, library="np", entry_stop=n_steps):
+        n_batches = 0
+        if n_steps == None:
+            n_batches = self.chain.tree.num_entries / batchsize
+        else:
+            n_batches = n_steps / batchsize
+
+        for batch in tqdm(self.chain.tree.iterate(step_size=batchsize, library="np", entry_stop=n_steps), total=n_batches):
 
             for var in self.plotted_variables:
                 if var in batch:
