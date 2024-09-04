@@ -58,9 +58,9 @@ class Plot:
         if not self.finalized:
             if(self.nvar==1):
                 if(self.mo_option):
-                    hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights*np.greater_equal(data["Deltam2_32"],0)*np.ones(np.shape(data["Deltam2_32"])))
+                    hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights*np.greater_equal(data["Deltam2_32"],0))
                     self.hist_no += hist
-                    hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights*np.less_equal(data["Deltam2_32"],0)*np.ones(np.shape(data["Deltam2_32"])))
+                    hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights*np.less_equal(data["Deltam2_32"],0))
                     self.hist_io += hist
                 else:
                     hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights)
@@ -68,10 +68,10 @@ class Plot:
             elif(self.nvar==2):
                 if self.mo_option:
                     hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange,
-                                                              weights = weights*np.greater_equal(data["Deltam2_32"],0)*np.ones(np.shape(data["Deltam2_32"])))
+                                                              weights = weights*np.greater_equal(data["Deltam2_32"],0))
                     self.hist_no += hist
                     hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange,
-                                                              weights = weights*np.less_equal(data["Deltam2_32"],0)*np.ones(np.shape(data["Deltam2_32"])))
+                                                              weights = weights*np.less_equal(data["Deltam2_32"],0))
                     self.hist_io += hist
                 else:
                     hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange, weights = weights)
@@ -86,14 +86,12 @@ class Plot:
         if(not self.finalized):
             if(self.nvar==1):
                 self.areas = np.diff(self.edges[0])
-                if(self.mo_option):
-                    self.hist = np.concatenate((self.hist_no,self.hist_io))
-                    self.areas = np.concatenate((self.areas,self.areas))
             if(self.nvar==2):
                 self.areas = np.outer(np.diff(self.edges[0]),np.diff(self.edges[1]))
-                if self.mo_option:
-                    self.hist = np.concatenate((self.hist_no,self.hist_io))
-                    self.areas = np.concatenate((self.areas,self.areas))
+
+            if self.mo_option:
+                self.hist = np.concatenate((self.hist_no,self.hist_io))
+                self.areas = np.concatenate((self.areas,self.areas))
             total = np.sum(self.hist)
             self.hist = self.hist/self.areas/total
             if self.mo_option:
@@ -107,11 +105,13 @@ class Plot:
                     self.hist_io = self.hist[sh[0]:,:]
             self.finalized = True
             
-    def draw_plot(self, sfig):
+    def draw_plot(self, sfig: plt.Figure):
         """
         Draw the plot. 
-        :ax: matplotlib axes to draw the plot on
+        :sfig: matplotlib axes to draw the plot on
         """
+
+        
         if self.mo_option:
             ax = sfig.subplots(1,2, sharey=True)
         else:
@@ -143,7 +143,7 @@ class Plot:
         if self.mo_option:
             sfig.subplots_adjust(wspace=0)
 
-    def draw_interval(self, sfig):
+    def draw_interval(self, sfig: plt.Figure):
         """
         Draw the intervals. To be improved
         :ax: matplotlib axes to draw the plot on
