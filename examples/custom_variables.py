@@ -54,8 +54,8 @@ stack.add_plot(["SinSqTheta23", "AbsDm2_32"],[],[50, 50], [[0.35, 0.65], [2.2E-3
 
 # Fill the plots
 stack.fill_plots()
-stack.draw_plots()
 stack.make_intervals([0.68,0.95])
+stack.draw_plots()
 stack.draw_intervals()
 
 plt.show()

@@ -65,7 +65,7 @@ IMPLEMENTED), the bins and axis ranges for the plots, as defined in
 or
 [numpy.histogram2d](https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html),
 and finally whether to treat the two mass orderings separately
-(`True`) or together (`False`, default) (TO BE IMPLEMENTED).
+(`True`) or together (`False`, default).
 
 Any number of plots can be added to the stack. When all plots are
 created, they can be filled by calling `fill_plots`, which has two
@@ -88,8 +88,12 @@ on either the plot stack or individual plots within the stack. The
 function takes an array of credible interval levels. 
 
 PDFs and intervals can be drawn with `draw_plot` and `draw_interval`
-respectively, and can take an `Axes` argument from matplotlib. (TO BE
-IMPLEMENTED: automatic figure/axes)
+respectively, and can take an `Figure` argument from matplotlib. When
+dividing a figure into subfigures, use the `subfigures` command, rather
+than `subplots`, as `subplots` is used internally. 
+
+The plot stack can also be used to automatically draw all of the plots
+in the stack, choosing the optimal dimensions for the subfigure array.
 
 An example of the plotting features is in `examples/testuproot.py` and
 can be run as follows: 
