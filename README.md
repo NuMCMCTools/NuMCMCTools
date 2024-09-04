@@ -64,7 +64,7 @@ IMPLEMENTED), the bins and axis ranges for the plots, as defined in
 or
 [numpy.histogram2d](https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html),
 and finally whether to treat the two mass orderings separately
-(`True`) or together (`False`, default) (TO BE IMPLEMENTED).
+(`True`) or together (`False`, default).
 
 Any number of plots can be added to the stack. When all plots are
 created, they can be filled by calling `fill_plots`, which has two
@@ -87,8 +87,12 @@ on either the plot stack or individual plots within the stack. The
 function takes an array of credible interval levels. 
 
 PDFs and intervals can be drawn with `draw_plot` and `draw_interval`
-respectively, and can take an `Axes` argument from matplotlib. (TO BE
-IMPLEMENTED: automatic figure/axes)
+respectively, and can take an `Figure` argument from matplotlib. When
+dividing a figure into subfigures, use the `subfigures` command, rather
+than `subplots`, as `subplots` is used internally. 
+
+The plot stack can also be used to automatically draw all of the plots
+in the stack, choosing the optimal dimensions for the subfigure array.
 
 An example of the plotting features is in `examples/testuproot.py` and
 can be run as follows: 
@@ -100,7 +104,7 @@ Example that loads example chain and makes example plots
 ```
 The output of this example should look as follows
 
-![testuproot](https://github.com/user-attachments/assets/dff6d98e-4600-4b43-9425-3d2aad3d0bbc)
+<img width="2869" alt="testuproot" src="https://github.com/user-attachments/assets/db68f411-2a06-4646-83c1-db8da26b5b41">
 
 
 ## Derived Variables
@@ -123,7 +127,7 @@ can be run as follows:
 ```
 The output of this example should look as follows
 
-![custom_variables](https://github.com/user-attachments/assets/38ca3621-eba9-400c-a6ac-b4497a7e56e8)
+<img width="2904" alt="custom_variables" src="https://github.com/user-attachments/assets/3cfb6af4-e188-49c7-8b68-2ab15f2586ac">
 
 ## Changing Priors
 
