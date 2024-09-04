@@ -59,7 +59,20 @@ class MCMCSamples:
         def jarlskog_invariant(Theta12, Theta13, Theta23, DeltaCP):
             jarlskog = np.cos(Theta12) * np.power(np.cos(Theta13), 2) * np.cos(Theta23) * np.sin(Theta12) * np.sin(Theta13) * np.sin(Theta23) * np.sin(DeltaCP)
             return jarlskog
+
+        # Explicit dcp in rads between 0 and 2pi
+        def deltacp_02pi(DeltaCP):
+            return np.mod(DeltaCP, 2 * np.pi)
+
+        # Explicit dcp in rads between -pi and pi
+        def deltacp_pipi(DeltaCP):
+            dcp_mod = np.mod(DeltaCP, 2 * np.pi)
+            return np.where(dcp_mod > np.pi, dcp_mod - 2*np.pi, dcp_mod)
+            
+        # Register the new variables
         self.variables["JarlskogInvariant"] = Variable("JarlskogInvariant", jarlskog_invariant)
+        self.variables["DeltaCP_02pi"] = Variable("DeltaCP_02pi", deltacp_02pi)
+        self.variables["DeltaCP_pipi"] = Variable("DeltaCP_pipi", deltacp_pipi)
 
     def add_variable(self, name: str, function: Callable[..., np.ndarray]):
         """
