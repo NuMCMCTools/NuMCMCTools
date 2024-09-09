@@ -39,8 +39,8 @@ samples.add_variable("AbsDm2_32",AbsDm2)
 # Create stack of plots
 stack = PlotStack(samples)
 
-priors = {"DeltaCP": ["Uniform:x", "Uniform:sin(x)"],
-          "Theta23": ["Uniform:x", "Gaussian(0.55, 0.01):sin^2(x)"]
+priors = {"DeltaCP": "Uniform:sin(x)",
+          "Theta23": "Gaussian(0.55, 0.01):sin^2(x)"
           }
 
 # 1D plots

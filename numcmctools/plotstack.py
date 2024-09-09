@@ -51,7 +51,7 @@ class PlotStack:
                     plot_jacobians[var] = None
                 else:
                     print(f"Prior for variable {var} supplied in plot: {variables}: {priors[var]}")
-                    plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(priors[var][0], priors[var][1])
+                    plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], priors[var])
 
         # Crash if user supplied a non-existant variable
         for var in variables:

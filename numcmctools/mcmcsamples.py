@@ -30,6 +30,7 @@ class MCMCSamples:
         self.tree = uproot.open(f"{self.filepath}:{self.treename}")
         # Get self.variables
         self.variables = {}
+        self.variable_priors = {}
         self.__check_and_extract_variables()
         # Get self.priors
         self.__check_and_extract_priors()
@@ -96,9 +97,25 @@ class MCMCSamples:
     def __check_and_extract_priors(self):
         """
         Check if the default priors exist for each of the compulsory variables,
-        and fill the self.priors map. Fill the transform map here too?
+        and fill the self.variable_priors map.
         """
-        pass
+        # Open the prior TList
+        tlist_priors = uproot.open(f"{self.filepath}:priors")
+
+        # Iterate over the TNamed objects and extract priors
+        for p in tlist_priors:
+            name = p.member('fName')
+            prior = p.member('fTitle')
+            if name in self.variables:
+                self.variable_priors[name] = prior
+            else:
+                # Don't try to fill prior for variable that does not exist!
+                raise ValueError("Prior defined for {name}, but variable {name} does not exist!")
+
+        # Make sure all the compulsory variables are filled
+        for v in self.compulsory_variables:
+            if v not in self.variable_priors:
+                raise ValueError("No prior for {v} defined in the root file!")
 
     def __repr__(self):
        """
