@@ -1,5 +1,6 @@
 from .plot import Plot
 from .mcmcsamples import MCMCSamples
+from .jacobiangraph import JacobianGraph
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -16,6 +17,7 @@ class PlotStack:
             raise TypeError(f"Expected MCMCSamples instance, got {type(chain).__name__}")
 
         self.chain = chain
+        self.jacobian_graph = JacobianGraph()
         self.plotted_variables = []
         self.plots = []
 
@@ -34,6 +36,23 @@ class PlotStack:
         :mo_option: When creating intervals, calculate intervals jointly over the mass hierarchies (True) or 
                     marginalized over hierarchies (False). Default is False; to be implemented.
         """
+
+        # Add the priors to the plotting function
+        # TODO: Would be nice to have some "verbose" option.
+        plot_jacobians = {}
+        if not priors:
+            print(f"No priors supplied for plot with variables: {variables}, will be uniform in whatever the supplied chain is in.")
+            for var in self.chain.compulsory_variables:
+                plot_jacobians[var] = None
+        else:
+            for var in self.chain.compulsory_variables:
+                if var not in priors:
+                    print(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chan is in.")
+                    plot_jacobians[var] = None
+                else:
+                    print(f"Prior for variable {var} supplied in plot: {variables}: {priors[var]}")
+                    plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(priors[var][0], priors[var][1])
+
         # Crash if user supplied a non-existant variable
         for var in variables:
             if var not in self.chain.variables:
@@ -45,7 +64,7 @@ class PlotStack:
                 continue
             self.plotted_variables.append(var)
 
-        self.plots.append(Plot(variables, priors, bins, axrange, mo_option))
+        self.plots.append(Plot(variables, plot_jacobians, bins, axrange, mo_option))
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         """
