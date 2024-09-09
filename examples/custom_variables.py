@@ -39,18 +39,22 @@ samples.add_variable("AbsDm2_32",AbsDm2)
 # Create stack of plots
 stack = PlotStack(samples)
 
+priors = {"DeltaCP": ["Uniform:x", "Uniform:sin(x)"],
+          "Theta23": ["Uniform:x", "Gaussian(0.55, 0.01):sin^2(x)"]
+          }
+
 # 1D plots
-stack.add_plot(["AbsUe3"], [], 50, [0.1, 0.25], True)
-stack.add_plot(["JarlskogInvariant"], {"DeltaCP": ["Uniform:x", "Uniform:sin(x)"]}, 50, [-0.05, 0.05], True)
-stack.add_plot(["SinSqTheta23"], [], 50, [0.35, 0.65])
-stack.add_plot(["SinSqTheta23"], [], 50, [0.35, 0.65],True)
-stack.add_plot(["AbsDm2_32"],[],50,[2.2E-3,2.8E-3],True)
+stack.add_plot(["AbsUe3"], priors, 50, [0.1, 0.25], True)
+stack.add_plot(["JarlskogInvariant"], priors, 50, [-0.05, 0.05], True)
+stack.add_plot(["SinSqTheta23"], priors, 50, [0.35, 0.65])
+stack.add_plot(["SinSqTheta23"], priors, 50, [0.35, 0.65],True)
+stack.add_plot(["AbsDm2_32"],priors,50,[2.2E-3,2.8E-3],True)
 
 # 2D plots
-stack.add_plot(["JarlskogInvariant", "AbsUe3"], {"DeltaCP": ["Uniform:x", "Uniform:sin(x)"]}, [50, 50], [[-0.05, 0.05], [0.1, 0.25]],True)
-stack.add_plot(["SinSqTheta23", "SinSq2Theta13"], [], [50, 50], [[0.35, 0.65], [0.04, 0.15]])
-stack.add_plot(["JarlskogInvariant", "DeltaCP"],{"DeltaCP": ["Uniform:x", "Uniform:sin(x)"]},[50, 50], [[-0.05, 0.05], [-np.pi, np.pi]])
-stack.add_plot(["SinSqTheta23", "AbsDm2_32"],[],[50, 50], [[0.35, 0.65], [2.2E-3,2.8E-3]], True)
+stack.add_plot(["JarlskogInvariant", "AbsUe3"], priors, [50, 50], [[-0.05, 0.05], [0.1, 0.25]],True)
+stack.add_plot(["SinSqTheta23", "SinSq2Theta13"], priors, [50, 50], [[0.35, 0.65], [0.04, 0.15]])
+stack.add_plot(["JarlskogInvariant", "DeltaCP"],priors,[50, 50], [[-0.05, 0.05], [-np.pi, np.pi]])
+stack.add_plot(["SinSqTheta23", "AbsDm2_32"],priors,[50, 50], [[0.35, 0.65], [2.2E-3,2.8E-3]], True)
 
 # Fill the plots
 stack.fill_plots()
