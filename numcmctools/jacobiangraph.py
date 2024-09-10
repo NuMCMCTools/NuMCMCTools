@@ -20,7 +20,8 @@ class JacobianGraph:
             'sin^2(2x)': sp.sin(2*x)**2,
             'cos(2x)': sp.cos(2*x),
             'cos^2(2x)': sp.cos(2*x)**2,
-            'exp(-ix)': sp.exp(-sp.I * x)
+            'exp(-ix)': sp.exp(-sp.I * x),
+            'exp(ix)': sp.exp(sp.I * x)
             }
 
     # Possible distribution functions (not including Uniform)
@@ -30,21 +31,11 @@ class JacobianGraph:
 
     def __init__(self):
         self.transform_graph: Dict[str, Callable[[np.ndarray], np.ndarray]] = {}
-        self.jacobian_graph = self.__build_graph()
+        self.jacobian_graph: Dict[str, Dict[str, Callable[[np.ndarray], np.ndarray]]] = {}
+        # Fill the transform & jacobian graphs
+        self.__build_graphs()
 
-    def gaussian_prior(self, mean: float, std: float) -> Callable[[np.ndarray], np.ndarray]:
-        """
-        Returns a Gaussian prior function with the specified mean and standard deviation.
-
-        :param mean: Mean (mu) of the Gaussian distribution.
-        :param std: Standard deviation (sigma) of the Gaussian distribution.
-        :returns: A Numpy-compatible function that represents the Gaussian prior.
-        """
-        def gaussian(x: np.ndarray) -> np.ndarray:
-            return (1 / (std * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x - mean) / std) ** 2)
-        return gaussian
-
-    def __jacobian_chain_rule(self, source: sp.Expr, target: sp.Expr):
+    def __jacobian_chain_rule(self, source: sp.Expr, target: sp.Expr) -> Callable[[np.ndarray], np.ndarray]:
         """
         Attempts a derivative from the source variable to the target variable,
         creates the derivative's modulus numpified function as the Jacobian
@@ -76,16 +67,17 @@ class JacobianGraph:
             print(f"Jacobian transformation from {source} to {target} error: {e}")
             return None
 
-    def __build_graph(self):
+    def __build_graphs(self):
         """
         Builds the Jacobian transformation prior dictionary from uniform in one
         variable to uniform in another, with pre-defined priors.
 
         :returns: Jacobian transformation dictionary
         """
-        jacobian_graph = {}
+
+        # Iterate over every single parameter transform combination available
         for from_prior, expr_from in self.variables.items():
-            jacobian_graph[from_prior] = {}
+            self.jacobian_graph[from_prior]: Dict[str, Callable[[np.ndarray], np.ndarray]] = {}
             for to_prior, expr_to in self.variables.items():
                 # Calculate the transformation function and Jacobian if possible
                 transform, jacobian = self.__jacobian_chain_rule(expr_from, expr_to)
@@ -93,10 +85,9 @@ class JacobianGraph:
                     self.transform_graph[to_prior] = transform
 
                 # Store in the jacobian graph
-                jacobian_graph[from_prior][to_prior] = jacobian
-        return jacobian_graph
+                self.jacobian_graph[from_prior][to_prior] = jacobian
 
-    def __parse_prior_string(self, prior: str):
+    def __parse_prior_string(self, prior: str) -> Tuple[str, List[float], str]:
         """
         Parses the prior string and extracts the prior type, it's parameter
         values (if any) and the target distribution expression.
@@ -105,6 +96,7 @@ class JacobianGraph:
         :returns: Distribution type as string, distribution parameters & target distribution expression
         """
 
+        # Extract parameters if in brackets
         match = re.match(r'(\w+)\((.*?)\):(.+)', prior)
         if match:
             dist_type = match.group(1)
@@ -118,7 +110,7 @@ class JacobianGraph:
         else:
             return 'Uniform', [], prior.split(':')[-1].strip()
 
-    def get_jacobian_func(self, from_prior: str, to_prior: str):
+    def get_jacobian_func(self, from_prior: str, to_prior: str) -> Callable[[np.ndarray], np.ndarray]:
         """
         Returns the Jacobian prior transformation function from prior uniform
         in one variable to prior uniform in another. The function includes
@@ -134,7 +126,7 @@ class JacobianGraph:
         to_dist_type, to_params, to_expr = self.__parse_prior_string(to_prior)
 
         # Error checking
-        if from_dist_type is not 'Uniform':
+        if from_dist_type != 'Uniform':
             print(f"Warning: Transforming from a gaussian distribution not supported, here be dragons!")
         if from_expr not in self.jacobian_graph or to_expr not in self.jacobian_graph[from_expr]:
             raise ValueError(f"No direct transformation available for {from_prior} to {to_prior}")
