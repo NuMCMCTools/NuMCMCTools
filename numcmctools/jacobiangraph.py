@@ -81,7 +81,6 @@ class JacobianGraph:
             for to_prior, expr_to in self.variables.items():
                 # Don't do transforms when transforming to itself
                 if from_prior == to_prior:
-                    self.transform_graph[to_prior] = None
                     self.jacobian_graph[from_prior][to_prior] = None
                     continue
                 # Calculate the transformation function and Jacobian if possible
