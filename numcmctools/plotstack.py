@@ -45,13 +45,14 @@ class PlotStack:
             for var in self.chain.compulsory_variables:
                 plot_jacobians[var] = None
         else:
+            parsed_priors = self.jacobian_graph.parse_priors(priors, self.chain.compulsory_variables)
             for var in self.chain.compulsory_variables:
-                if var not in priors:
-                    print(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chan is in.")
+                if var not in parsed_priors:
+                    print(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chain is in.")
                     plot_jacobians[var] = None
                 else:
-                    print(f"Prior for variable {var} supplied in plot: {variables}: {priors[var]}")
-                    plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], priors[var])
+                    print(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
+                    plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], parsed_priors[var])
 
         # Crash if user supplied a non-existant variable
         for var in variables:

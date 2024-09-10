@@ -2,6 +2,7 @@ import uproot
 import numpy as np
 from typing import Callable, Dict
 from .variable import Variable
+from .jacobiangraph import JacobianGraph
 
 class MCMCSamples:
     compulsory_variables = [
@@ -102,20 +103,24 @@ class MCMCSamples:
         # Open the prior TList
         tlist_priors = uproot.open(f"{self.filepath}:priors")
 
+        priors = []
         # Iterate over the TNamed objects and extract priors
         for p in tlist_priors:
             name = p.member('fName')
             prior = p.member('fTitle')
             if name in self.variables:
-                self.variable_priors[name] = prior
+                priors.append(prior)
             else:
                 # Don't try to fill prior for variable that does not exist!
                 raise ValueError("Prior defined for {name}, but variable {name} does not exist!")
 
+        # Parse the compulsary variables into format understood internally
+        self.variable_priors = JacobianGraph.parse_priors(priors, self.compulsory_variables)
+
         # Make sure all the compulsory variables are filled
         for v in self.compulsory_variables:
             if v not in self.variable_priors:
-                raise ValueError("No prior for {v} defined in the root file!")
+                raise ValueError(f"No prior for {v} defined in the root file!")
 
     def __repr__(self):
        """

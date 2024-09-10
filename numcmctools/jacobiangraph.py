@@ -15,11 +15,13 @@ class JacobianGraph:
             'sin^2(x)': sp.sin(x)**2,
             'cos(x)': sp.cos(x),
             'cos^2(x)': sp.cos(x)**2,
+            'cos^4(x)': sp.cos(x)**4,
             '2x' : 2*x,
             'sin(2x)' : sp.sin(2*x),
             'sin^2(2x)': sp.sin(2*x)**2,
             'cos(2x)': sp.cos(2*x),
             'cos^2(2x)': sp.cos(2*x)**2,
+            'cos^4(2x)': sp.cos(2*x)**4,
             'exp(-ix)': sp.exp(-sp.I * x),
             'exp(ix)': sp.exp(sp.I * x)
             }
@@ -113,6 +115,63 @@ class JacobianGraph:
             return dist_type, params, expr
         else:
             return 'Uniform', [], prior.split(':')[-1].strip()
+
+    @staticmethod
+    def parse_priors(prior_list: List[str], variables: List[str]) -> Optional[Dict[str, str]]:
+        """
+        Static function that parses list of prior strings from
+        [PriorType(i,j):function(variable)] format to a dictionary in format
+        {"variable": PriorType(i,j):function(x)} format, variable being the
+        actual variable name (string). The dictionary is understood
+        internally, whereas the user-provided list-strings is more
+        user-friendly.
+
+        :param prior_list: List of user-provided prior strings to parse
+        :param variables: List of variable names (strings) for the priors
+        :return: Dictionary of variable names -- prior function strings
+        """
+
+        # Don't do anything if no priors provided
+        if not prior_list:
+            return None
+
+        parsed_priors: Dict[str, str] = {}
+
+        # Iterate over the priors in the string
+        for prior in prior_list:
+            # Match our specific format
+            match = re.match(r'(\w+)(\(.*?\))?:(.*)', prior)
+            if not match:
+                raise ValueError(f"Prior {prior} in wrong format!")
+
+            # Extract each string element
+            prior_type = match.group(1)
+            params = match.group(2) if match.group(2) else ""
+            expression = match.group(3).strip()
+
+            # Find the variable among allowed/supplied variables
+            found = False
+            for var in variables:
+                if var not in expression:
+                    continue
+
+                if found:
+                    raise ValueError(f"Prior {prior} seems to contain more than one variable, currently unsupported!")
+
+                if var in parsed_priors:
+                    raise ValueError(f"Prior for {var} already filled with {parsed_priors[var]}, cannot overload with {prior}!")
+
+                # Replace all instances of variable name with x
+                transformed_expr = expression.replace(var, 'x')
+
+                # Add the formated prior string into the dictionary
+                parsed_priors[var] = f"{prior_type}{params}:{transformed_expr}"
+                found = True
+
+            if not found:
+                raise ValueError(f"Supplied prior {prior}, but could not find an appropriate variable out of {variables}")
+
+        return parsed_priors
 
     def get_jacobian_func(self, from_prior: str, to_prior: str) -> Callable[[np.ndarray], np.ndarray]:
         """

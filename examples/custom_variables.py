@@ -43,15 +43,13 @@ samples.add_variable("AbsDm2_32",AbsDm2)
 # Create stack of plots
 stack = PlotStack(samples)
 
-priors= {"Theta23": "Gaussian(0.55, 0.01):sin^2(x)"}
+priors= ["Gaussian(0.55, 0.01):sin^2(Theta23)"]
 
-priors_sindcp = {"DeltaCP": "Uniform:sin(x)",
-                 "Theta23": "Gaussian(0.55, 0.01):sin^2(x)"
-                }
-priors_expdcp = {"DeltaCP": "Uniform:sin(x)",
-                 "Theta23": "Gaussian(0.55, 0.01):sin^2(x)"
-                }
+priors_sindcp = ["Uniform:sin(DeltaCP)",
+                 "Gaussian(0.55, 0.01):sin^2(Theta23)"]
 
+priors_expdcp = ["Uniform:sin(DeltaCP)",
+                 "Gaussian(0.55, 0.01):sin^2(Theta23)"]
 
 # 1D plots
 stack.add_plot(["AbsUe3"], priors_expdcp, 50, [0.1, 0.25], True)
