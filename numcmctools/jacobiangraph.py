@@ -79,6 +79,11 @@ class JacobianGraph:
         for from_prior, expr_from in self.variables.items():
             self.jacobian_graph[from_prior]: Dict[str, Callable[[np.ndarray], np.ndarray]] = {}
             for to_prior, expr_to in self.variables.items():
+                # Don't do transforms when transforming to itself
+                if from_prior == to_prior:
+                    self.transform_graph[to_prior] = None
+                    self.jacobian_graph[from_prior][to_prior] = None
+                    continue
                 # Calculate the transformation function and Jacobian if possible
                 transform, jacobian = self.__jacobian_chain_rule(expr_from, expr_to)
                 if to_prior not in self.transform_graph:
