@@ -147,15 +147,18 @@ class JacobianGraph:
             if to_dist_type not in self.distribution_functions:
                 raise TypeError(f"Distribution {to_dist_type} not available!")
 
-            # Get the jacobian transform
-            jacobian_values = jacobian(values)
-
             # Get the target distribution function
             dist_func = self.distribution_functions[to_dist_type](*to_params)
 
             # Get the values from the target distribution
             # TODO: This is likely already being calculated in MCMCSamples class! Need to integrate this better
             dist_values = dist_func(self.transform_graph[to_expr](values))
+
+            if jacobian is None:
+                return dist_values
+
+            # Get the jacobian transform
+            jacobian_values = jacobian(values)
 
             # Return the product of jacobian & target distribution weights
             return dist_values * jacobian_values
