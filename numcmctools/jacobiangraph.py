@@ -1,6 +1,6 @@
 import sympy as sp
 import re
-from typing import Callable, Optional, Dict
+from typing import Callable, Optional, Dict, Tuple, List
 import numpy as np
 
 class JacobianGraph:
