@@ -27,7 +27,10 @@ splittings. For more information on the parameterization see the [PDG
 review on neutrino mixing](https://pdg.lbl.gov/2024/web/viewer.html?file=../reviews/rpp2024-rev-neutrino-mixing.pdf). 
 
 Each parameter has some prior set by the original analyzers. The
-format of this information is TBD. 
+format of this information is a TList containing a TNamed for each branch, 
+which specifies the name of the branch and its prior in the format of 
+
+ARTUR DO THIS
 
 There may be additional information contained in the file; please see
 the data release from the particular analysis for more detail.
