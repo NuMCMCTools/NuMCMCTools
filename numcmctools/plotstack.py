@@ -1,8 +1,9 @@
 from .plot import Plot
 from .mcmcsamples import MCMCSamples
+from .jacobiangraph import JacobianGraph
 import numpy as np
+from tqdm import tqdm
 import matplotlib.pyplot as plt
-
 
 class PlotStack:
     def __init__(self, chain: MCMCSamples):
@@ -16,6 +17,7 @@ class PlotStack:
             raise TypeError(f"Expected MCMCSamples instance, got {type(chain).__name__}")
 
         self.chain = chain
+        self.jacobian_graph = JacobianGraph()
         self.plotted_variables = []
         self.plots = []
 
@@ -34,6 +36,24 @@ class PlotStack:
         :mo_option: When creating intervals, calculate intervals jointly over the mass hierarchies (True) or 
                     marginalized over hierarchies (False). Default is False; to be implemented.
         """
+
+        # Add the priors to the plotting function
+        # TODO: Would be nice to have some "verbose" option.
+        plot_jacobians = {}
+        if not priors:
+            print(f"No priors supplied for plot with variables: {variables}, will be uniform in whatever the supplied chain is in.")
+            for var in self.chain.compulsory_variables:
+                plot_jacobians[var] = None
+        else:
+            parsed_priors = self.jacobian_graph.parse_priors(priors, self.chain.compulsory_variables)
+            for var in self.chain.compulsory_variables:
+                if var not in parsed_priors:
+                    print(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chain is in.")
+                    plot_jacobians[var] = None
+                else:
+                    print(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
+                    plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], parsed_priors[var])
+
         # Crash if user supplied a non-existant variable
         for var in variables:
             if var not in self.chain.variables:
@@ -45,7 +65,7 @@ class PlotStack:
                 continue
             self.plotted_variables.append(var)
 
-        self.plots.append(Plot(variables, priors, bins, axrange, mo_option))
+        self.plots.append(Plot(variables, plot_jacobians, bins, axrange, mo_option))
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         """
@@ -55,7 +75,13 @@ class PlotStack:
         :batchsize: number of steps to draw simultaneously from the chain, to manage memory 
                     requirements.
         """
-        for batch in self.chain.tree.iterate(step_size=batchsize, library="np", entry_stop=n_steps):
+        n_batches = 0
+        if n_steps == None:
+            n_batches = self.chain.tree.num_entries / batchsize
+        else:
+            n_batches = n_steps / batchsize
+
+        for batch in tqdm(self.chain.tree.iterate(step_size=batchsize, library="np", entry_stop=n_steps), total=n_batches):
 
             for var in self.plotted_variables:
                 if var in batch:

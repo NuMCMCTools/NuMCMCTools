@@ -2,6 +2,7 @@ import uproot
 import numpy as np
 from typing import Callable, Dict
 from .variable import Variable
+from .jacobiangraph import JacobianGraph
 
 class MCMCSamples:
     compulsory_variables = [
@@ -30,6 +31,7 @@ class MCMCSamples:
         self.tree = uproot.open(f"{self.filepath}:{self.treename}")
         # Get self.variables
         self.variables = {}
+        self.variable_priors = {}
         self.__check_and_extract_variables()
         # Get self.priors
         self.__check_and_extract_priors()
@@ -63,7 +65,20 @@ class MCMCSamples:
         def jarlskog_invariant(Theta12, Theta13, Theta23, DeltaCP):
             jarlskog = np.cos(Theta12) * np.power(np.cos(Theta13), 2) * np.cos(Theta23) * np.sin(Theta12) * np.sin(Theta13) * np.sin(Theta23) * np.sin(DeltaCP)
             return jarlskog
+
+        # Explicit dcp in rads between 0 and 2pi
+        def deltacp_02pi(DeltaCP):
+            return np.mod(DeltaCP, 2 * np.pi)
+
+        # Explicit dcp in rads between -pi and pi
+        def deltacp_pipi(DeltaCP):
+            dcp_mod = np.mod(DeltaCP, 2 * np.pi)
+            return np.where(dcp_mod > np.pi, dcp_mod - 2*np.pi, dcp_mod)
+            
+        # Register the new variables
         self.variables["JarlskogInvariant"] = Variable("JarlskogInvariant", jarlskog_invariant)
+        self.variables["DeltaCP_02pi"] = Variable("DeltaCP_02pi", deltacp_02pi)
+        self.variables["DeltaCP_pipi"] = Variable("DeltaCP_pipi", deltacp_pipi)
 
     def add_variable(self, name: str, function: Callable[..., np.ndarray]):
         """
@@ -83,9 +98,29 @@ class MCMCSamples:
     def __check_and_extract_priors(self):
         """
         Check if the default priors exist for each of the compulsory variables,
-        and fill the self.priors map. Fill the transform map here too?
+        and fill the self.variable_priors map.
         """
-        pass
+        # Open the prior TList
+        tlist_priors = uproot.open(f"{self.filepath}:priors")
+
+        priors = []
+        # Iterate over the TNamed objects and extract priors
+        for p in tlist_priors:
+            name = p.member('fName')
+            prior = p.member('fTitle')
+            if name in self.variables:
+                priors.append(prior)
+            else:
+                # Don't try to fill prior for variable that does not exist!
+                raise ValueError("Prior defined for {name}, but variable {name} does not exist!")
+
+        # Parse the compulsary variables into format understood internally
+        self.variable_priors = JacobianGraph.parse_priors(priors, self.compulsory_variables)
+
+        # Make sure all the compulsory variables are filled
+        for v in self.compulsory_variables:
+            if v not in self.variable_priors:
+                raise ValueError(f"No prior for {v} defined in the root file!")
 
     def __repr__(self):
        """

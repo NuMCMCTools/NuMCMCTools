@@ -1,3 +1,5 @@
 uproot
 numpy
 matplotlib
+tqdm
+sympy

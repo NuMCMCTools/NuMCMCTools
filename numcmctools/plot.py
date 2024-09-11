@@ -1,16 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from .jacobiangraph import JacobianGraph
 
 class Plot:
-        
-    def __init__(self, variables, priors, bins, axrange=None, mo_option=False):
+    def __init__(self, variables, jacobians, bins, axrange=None, mo_option=False):
         """
         Initialise a Plot instance.
 
         :variables: Array of strings indicating the variables to be plotted.
                     Only 1D and 2D are currently supported. Custom variables can be declared
                     when through the mcmcsamples class
-        :priors: TBD
+        :priors: A dictionary of jacobian transform functions (can be None for
+                 each parameter if no transformations are needed)
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
                or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
@@ -19,14 +20,14 @@ class Plot:
                     marginalized over hierarchies (False). Default is False; to be implemented.
         """
         self.variables = variables
-        self.priors = priors
+        self.jacobian_funcs = jacobians
         self.bins = bins
         self.axrange = axrange
         self.mo_option = mo_option
         self.nvar = len(self.variables)
         self.edges = []
         self.finalized = False
-                
+
         if(self.nvar==1):
             self.hist, edges = np.histogram([], self.bins, self.axrange, weights=[])
             self.edges.append(edges)
@@ -54,6 +55,13 @@ class Plot:
 
         if weights==None:
             weights = np.ones(np.shape(data[self.variables[0]]))
+
+        # Apply the jacobian transformation functions
+        for var in self.jacobian_funcs:
+            if not self.jacobian_funcs[var]:
+                continue
+            # Apply the weight
+            weights *= self.jacobian_funcs[var](data[var])
         
         if not self.finalized:
             if(self.nvar==1):
