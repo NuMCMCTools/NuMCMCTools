@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import logging
 from .jacobiangraph import JacobianGraph
+
+logger = logging.getLogger(__name__)
 
 class Plot:
     def __init__(self, variables, jacobians, bins, axrange=None, mo_option=False):
@@ -42,7 +45,7 @@ class Plot:
                 self.hist_no = np.zeros(np.shape(self.hist))
                 self.hist_io = np.zeros(np.shape(self.hist))
         else:
-            print("too many or too few variables!")
+            logger.error("too many or too few variables!")
             return
                 
     def fill_plot(self, data, weights=None):
@@ -85,7 +88,7 @@ class Plot:
                     hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange, weights = weights)
                     self.hist += hist
         else:
-            print("histogram was finalized already! No filling allowed!")
+            logger.warn("histogram was finalized already! No filling allowed!")
 
     def finalize_histogram(self):
         """

@@ -3,7 +3,10 @@ from .mcmcsamples import MCMCSamples
 from .jacobiangraph import JacobianGraph
 import numpy as np
 from tqdm import tqdm
+import logging
 import matplotlib.pyplot as plt
+
+logger = logging.getLogger(__name__)
 
 class PlotStack:
     def __init__(self, chain: MCMCSamples):
@@ -41,17 +44,17 @@ class PlotStack:
         # TODO: Would be nice to have some "verbose" option.
         plot_jacobians = {}
         if not priors:
-            print(f"No priors supplied for plot with variables: {variables}, will be uniform in whatever the supplied chain is in.")
+            logger.debug(f"No priors supplied for plot with variables: {variables}, will be uniform in whatever the supplied chain is in.")
             for var in self.chain.compulsory_variables:
                 plot_jacobians[var] = None
         else:
             parsed_priors = self.jacobian_graph.parse_priors(priors, self.chain.compulsory_variables)
             for var in self.chain.compulsory_variables:
                 if var not in parsed_priors:
-                    print(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chain is in.")
+                    logger.debug(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chain is in.")
                     plot_jacobians[var] = None
                 else:
-                    print(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
+                    logger.debug(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
                     plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], parsed_priors[var])
 
         # Crash if user supplied a non-existant variable
