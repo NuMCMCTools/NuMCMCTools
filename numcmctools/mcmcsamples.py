@@ -1,8 +1,11 @@
 import uproot
 import numpy as np
+import logging, sys
 from typing import Callable, Dict
 from .variable import Variable
 from .jacobiangraph import JacobianGraph
+
+logger = logging.getLogger(__name__)
 
 class MCMCSamples:
     compulsory_variables = [
@@ -14,7 +17,7 @@ class MCMCSamples:
             "Deltam2_21",
             ]
 
-    def __init__(self, _filepath, _treename, _branches=[]):
+    def __init__(self, _filepath, _treename,_branches=[]):
         """
         Initialise the MCMCSamples object.
 
@@ -36,7 +39,8 @@ class MCMCSamples:
         # Get self.priors
         self.__check_and_extract_priors()
 
-        print(f"Successfully initialised MCMCSamples object with ROOT file '{self.filepath}' and '{self.treename}' TTree inside")
+        logger.info(f"Successfully initialised MCMCSamples object with ROOT file '{self.filepath}' and '{self.treename}' TTree inside")
+
 
     def __check_and_extract_variables(self):
         """
@@ -49,6 +53,7 @@ class MCMCSamples:
             if var in keys:
                 # Create new variable
                 self.variables[var] = Variable(var, lambda **kwargs: kwargs[var])
+                logger.debug(f"Compulsory variable {var} found in the root file")
             else:
                 raise ValueError(f"Compulsory variable '{var}' not found in the TTree.")
 
@@ -110,6 +115,7 @@ class MCMCSamples:
             prior = p.member('fTitle')
             if name in self.variables:
                 priors.append(prior)
+                logger.debug(f"Prior for {name} found, with format: {prior}")
             else:
                 # Don't try to fill prior for variable that does not exist!
                 raise ValueError("Prior defined for {name}, but variable {name} does not exist!")
