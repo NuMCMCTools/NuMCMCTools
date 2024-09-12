@@ -28,9 +28,15 @@ review on neutrino mixing](https://pdg.lbl.gov/2024/web/viewer.html?file=../revi
 
 Each parameter has some prior set by the original analyzers. The
 format of this information is a TList containing a TNamed for each branch, 
-which specifies the name of the branch and its prior in the format of 
+which specifies the name of the branch and its prior. 
 
-ARTUR DO THIS
+The priors are specified as either `Uniform` or `Gaussian(mean, sigma)`.
+There is then a further specification as to which variable the functional form
+applies to. For example, a specification of 
+
+``` Theta23  Uniform:sin^2(Theta23)```
+
+indicates that the prior for Theta23 is uniform in $\sin^2\theta_{23}$.
 
 There may be additional information contained in the file; please see
 the data release from the particular analysis for more detail.
@@ -61,8 +67,8 @@ are currently supported.
 
 A plot is added to the plot stack with the `add_plot` function, which
 takes as arguments an array of the name(s) of the variables to be
-plotted as strings, any change in priors to be applied (TO BE
-IMPLEMENTED), the bins and axis ranges for the plots, as defined in
+plotted as strings, any change in priors to be applied (see section below for details),
+the bins and axis ranges for the plots, as defined in
 [numpy.histogram](https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
 or
 [numpy.histogram2d](https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html),
@@ -134,4 +140,30 @@ The output of this example should look as follows
 
 ## Changing Priors
 
-Gotta do some work, gotta change some priors
+Priors for parameters can be changed automatically when making plots.
+A list of new priors is passed when adding a new `plot` to the `plotstack`.
+This feature currently only works in 1D and with Uniform or Gaussian priors
+in a limited set of transformations of variables. The list of currently
+available transformations is:
+
+```
+x
+sin(x)
+sin^2(x)
+cos(x)
+cos^2(x)
+2x
+sin(2x)
+sin^2(2x)
+cos(2x)
+cos^2(2x)
+exp(-ix)
+```
+For example, an input chain that has a prior set to be uniform in DeltaCP can
+have the following passed to the input chain to make plots with a prior uniform
+in $\sin\delta_{CP}$:
+
+```
+["Uniform:sin(DeltaCP)"]
+```
+Examples of this in practice are in the `custom_variables` example. 
