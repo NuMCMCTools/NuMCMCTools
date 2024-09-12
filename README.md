@@ -136,7 +136,8 @@ can be run as follows:
 ```
 The output of this example should look as follows
 
-<img width="2904" alt="custom_variables" src="https://github.com/user-attachments/assets/3cfb6af4-e188-49c7-8b68-2ab15f2586ac">
+<img width="2909" alt="custom_variables" src="https://github.com/user-attachments/assets/45125ba5-455c-4bc2-b1a7-6a5422fd541b">
+
 
 ## Changing Priors
 
