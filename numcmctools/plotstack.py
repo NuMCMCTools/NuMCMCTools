@@ -125,12 +125,19 @@ class PlotStack:
         self.figplt = plt.figure()
         self.sfigplt = self.figplt.subfigures(xplt, yplt)
 
-        for index, plot in enumerate(self.plots):
-            if(xplt> 1 and yplt>1):
-                ind = np.unravel_index(index,(xplt, yplt))
-                plot.draw_plot(self.sfigplt[ind[0],ind[1]]);
+        for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigplt.flat)):
+            ax = None
+            if plot.mo_option:
+                a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
+                ax = [a1, a2]
+                subfig.subplots_adjust(wspace=0)
             else:
-                plot.draw_plot(self.sfigplt[index])
+                ax = subfig.add_subplot()
+
+            plot.draw_plot(ax)
+
+            for ax in subfig.get_axes():
+                ax.label_outer()
         return self.figplt, self.sfigplt
 
     def draw_intervals(self, plot_array_dim = []):
@@ -154,12 +161,19 @@ class PlotStack:
         self.figint = plt.figure()
         self.sfigint = self.figint.subfigures(xplt, yplt)
         
-        for index, plot in enumerate(self.plots):
-            if(xplt> 1 and yplt>1):
-                ind = np.unravel_index(index,(xplt, yplt))
-                plot.draw_interval(self.sfigint[ind[0],ind[1]]);
+        for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigint.flat)):
+            ax = None
+            if plot.mo_option:
+                a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
+                ax = [a1, a2]
+                subfig.subplots_adjust(wspace=0)
             else:
-                plot.draw_interval(self.sfigint[index])
+                ax = subfig.add_subplot()
+
+            plot.draw_interval(ax)
+
+            for ax in subfig.get_axes():
+                ax.label_outer()
 
         return self.figint, self.sfigint
 
