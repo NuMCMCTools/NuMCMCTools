@@ -113,73 +113,105 @@ class Plot:
                     self.hist_io = self.hist[sh[0]:,:]
             self.finalized = True
             
-    def draw_plot(self, sfig: plt.Figure):
+    def draw_plot(self, sfig: plt.Figure, mo_separate=True):
         """
         Draw the plot. 
-        :sfig: matplotlib axes to draw the plot on
+        :sfig: matplotlib subfigure to draw the plot on
+
+        returns 1 or 2 matplotlib subplots for further manipulation
         """
 
-        
-        if self.mo_option:
-            ax = sfig.subplots(1,2, sharey=True)
-        else:
-            ax = sfig.subplots(1,1)
+        ax = sfig.get_axes()
+
+        if len(ax)==0:
+            if self.mo_option and mo_separate:
+                ax = sfig.subplots(1,2, sharey=True)
+            else:
+                ax = []
+                ax.append(sfig.subplots(1,1))
         
         if(self.nvar==1):
             if self.mo_option:
-                ax[0].stairs(self.hist_no,self.edges[0])
-                ax[0].set_xlabel(self.variables[0]+" NO")
-                ax[1].stairs(self.hist_io,self.edges[0])
-                ax[1].set_xlabel(self.variables[0]+" IO")
+                if mo_separate:
+                    ax[0].stairs(self.hist_no,self.edges[0])
+                    ax[0].set_xlabel(self.variables[0]+" NO")
+                    ax[1].stairs(self.hist_io,self.edges[0])
+                    ax[1].set_xlabel(self.variables[0]+" IO")
+                else:
+                    ax[0].stairs(self.hist_no,self.edges[0])
+                    ax[0].stairs(self.hist_io,self.edges[0])
+                    ax[0].set_xlabel(self.variables[0])
                                 
             else:
-                ax.stairs(self.hist,self.edges[0])
-                ax.set_xlabel(self.variables[0])
+                ax[0].stairs(self.hist,self.edges[0])
+                ax[0].set_xlabel(self.variables[0])
 
         if(self.nvar==2):
             if self.mo_option:
-                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
-                ax[0].set_xlabel(self.variables[0]+" NO")
-                ax[0].set_ylabel(self.variables[1])
-                cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
-                ax[1].set_xlabel(self.variables[0]+" IO")
+                if mo_separate:
+                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                    ax[0].set_xlabel(self.variables[0]+" NO")
+                    ax[0].set_ylabel(self.variables[1])
+                    cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                    ax[1].set_xlabel(self.variables[0]+" IO")
+                else:
+                    print("2D color overlap looks terrible, not drawn!")
             else:
-                cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-                ax.set_xlabel(self.variables[0])
-                ax.set_ylabel(self.variables[1])
+                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+                ax[0].set_xlabel(self.variables[0])
+                ax[0].set_ylabel(self.variables[1])
 
         if self.mo_option:
             sfig.subplots_adjust(wspace=0)
 
-    def draw_interval(self, sfig: plt.Figure):
+        return ax
+
+
+    def draw_interval(self, sfig: plt.Figure, mo_separate=True):
         """
-        Draw the intervals. To be improved
-        :ax: matplotlib axes to draw the plot on
+        Draw the intervals.
+        :sfig: matplotlib subfigure to draw the plot on
+
+        returns 1 or 2 matplotlib subplots for further manipulation
         """
 
-        #gotta fix this
-        if self.mo_option:
-            ax = sfig.subplots(1,2, sharey=True)
-        else:
-            ax = sfig.subplots(1,1)
+  
+        ax = sfig.get_axes()
+
+        if len(ax)==0:
+            if self.mo_option and mo_separate:
+                ax = sfig.subplots(1,2, sharey=True)
+            else:
+                ax = []
+                ax.append(sfig.subplots(1,1))
         
         #need to put in a check if the intervals have been calculated
         if(self.nvar==1):
             if self.mo_option:
-                ax[0].stairs(self.hist_no,self.edges[0], color='black')
-                for lev in self.prob_levels:
-                    ax[0].stairs(self.hist_no*np.greater_equal(self.hist_no,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
-                ax[0].set_xlabel(self.variables[0]+" NO")
+                if mo_separate:
+                    ax[0].stairs(self.hist_no,self.edges[0], color='black')
+                    for lev in self.prob_levels:
+                        ax[0].stairs(self.hist_no*np.greater_equal(self.hist_no,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+                    ax[0].set_xlabel(self.variables[0]+" NO")
                 
-                ax[1].stairs(self.hist_io,self.edges[0], color='black')
-                for lev in self.prob_levels:
-                    ax[1].stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
-                ax[1].set_xlabel(self.variables[0]+" IO")
+                    ax[1].stairs(self.hist_io,self.edges[0], color='black')
+                    for lev in self.prob_levels:
+                        ax[1].stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+                    ax[1].set_xlabel(self.variables[0]+" IO")
+                else:
+                    ax[0].stairs(self.hist_no,self.edges[0], color='black')
+                    for lev in self.prob_levels:
+                        ax[0].stairs(self.hist_no*np.greater_equal(self.hist_no,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+                    ax[0].set_xlabel(self.variables[0])
+                    ax[0].stairs(self.hist_io,self.edges[0], color='blue')
+                    for lev in self.prob_levels:
+                        ax[0].stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='blue', alpha=0.3)
+
             else:
-                ax.stairs(self.hist,self.edges[0], color='black')
+                ax[0].stairs(self.hist,self.edges[0], color='black')
                 for lev in self.prob_levels:
-                    ax.stairs(self.hist*np.greater_equal(self.hist,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
-                ax.set_xlabel(self.variables[0])
+                    ax[0].stairs(self.hist*np.greater_equal(self.hist,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+                ax[0].set_xlabel(self.variables[0])
         
         if(self.nvar==2):
 
@@ -190,22 +222,35 @@ class Plot:
             linestyles = list(reversed(linestyles))
 
             if self.mo_option:
-                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
-                ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                ax[0].set_xlabel(self.variables[0]+" NO")
-                ax[0].set_ylabel(self.variables[1])
-                cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
-                ax[1].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                ax[1].set_xlabel(self.variables[0]+" IO")
+                if mo_separate:
+                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                    ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                    ax[0].set_xlabel(self.variables[0]+" NO")
+                    ax[0].set_ylabel(self.variables[1])
+                    cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                    ax[1].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                    ax[1].set_xlabel(self.variables[0]+" IO")
+                else:
+                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                    ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='black')
+                    ax[0].set_ylabel(self.variables[1])
+                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                    ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='blue')
+                    ax[0].set_xlabel(self.variables[0])
+                    plot = ax[0].get_children()
+                    plot[0].remove()
+                    plot[2].remove()
+                    
             else:
-                cm = ax.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-                ax.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                ax.set_xlabel(self.variables[0])
-                ax.set_ylabel(self.variables[1])
+                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+                ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                ax[0].set_xlabel(self.variables[0])
+                ax[0].set_ylabel(self.variables[1])
 
         if self.mo_option:
             sfig.subplots_adjust(wspace=0)
 
+        return ax
         
     def make_intervals(self,levels):
         """

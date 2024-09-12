@@ -104,7 +104,7 @@ class PlotStack:
         for plot in self.plots:
             plot.make_intervals(levels)       
  
-    def draw_plots(self, plot_array_dim = []):
+    def draw_plots(self, plot_array_dim = [],mo_separate=True):
         """
         Draw all the plots on a freshly created figure with
         automatic alloction of the subplot array dimensions. Returns
@@ -112,6 +112,8 @@ class PlotStack:
 
         :plot_array_dim: an array of two numbers to override the 
         automatic dimensioning
+
+        returns the figure, subfigures, and subplots
 
         """
         xplt=1
@@ -125,15 +127,18 @@ class PlotStack:
         self.figplt = plt.figure()
         self.sfigplt = self.figplt.subfigures(xplt, yplt)
 
+        self.axesplt = []
+
         for index, plot in enumerate(self.plots):
             if(xplt> 1 and yplt>1):
                 ind = np.unravel_index(index,(xplt, yplt))
-                plot.draw_plot(self.sfigplt[ind[0],ind[1]]);
+                ax = plot.draw_plot(self.sfigplt[ind[0],ind[1]], mo_separate);
             else:
-                plot.draw_plot(self.sfigplt[index])
-        return self.figplt, self.sfigplt
+                ax = plot.draw_plot(self.sfigplt[index], mo_separate)
+            self.axesplt.append(ax)
+        return self.figplt, self.sfigplt, self.axesplt
 
-    def draw_intervals(self, plot_array_dim = []):
+    def draw_intervals(self, plot_array_dim = [], mo_separate=True):
         """
         Draw all the intervals plots on a freshly created figure with
         automatic alloction of the subplot array dimensions. Returns
@@ -153,15 +158,17 @@ class PlotStack:
 
         self.figint = plt.figure()
         self.sfigint = self.figint.subfigures(xplt, yplt)
-        
+
+        self.axesint = []
+
         for index, plot in enumerate(self.plots):
             if(xplt> 1 and yplt>1):
                 ind = np.unravel_index(index,(xplt, yplt))
-                plot.draw_interval(self.sfigint[ind[0],ind[1]]);
+                ax = plot.draw_interval(self.sfigint[ind[0],ind[1]], mo_separate);
             else:
-                plot.draw_interval(self.sfigint[index])
-
-        return self.figint, self.sfigint
+                ax = plot.draw_interval(self.sfigint[index], mo_separate)
+            self.axesint.append(ax)
+        return self.figint, self.sfigint, self.axesint
 
 
     def __determine_plot_array(self):
