@@ -104,7 +104,7 @@ class PlotStack:
         for plot in self.plots:
             plot.make_intervals(levels)       
  
-    def draw_plots(self, plot_array_dim = []):
+    def draw_plots(self, plot_array_dim = [],mo_separate=True):
         """
         Draw all the plots on a freshly created figure with
         automatic alloction of the subplot array dimensions. Returns
@@ -132,13 +132,13 @@ class PlotStack:
         for index, plot in enumerate(self.plots):
             if(xplt> 1 and yplt>1):
                 ind = np.unravel_index(index,(xplt, yplt))
-                ax = plot.draw_plot(self.sfigplt[ind[0],ind[1]]);
+                ax = plot.draw_plot(self.sfigplt[ind[0],ind[1]], mo_separate);
             else:
-                ax = plot.draw_plot(self.sfigplt[index])
+                ax = plot.draw_plot(self.sfigplt[index], mo_separate)
             self.axesplt.append(ax)
         return self.figplt, self.sfigplt, self.axesplt
 
-    def draw_intervals(self, plot_array_dim = []):
+    def draw_intervals(self, plot_array_dim = [], mo_separate=True):
         """
         Draw all the intervals plots on a freshly created figure with
         automatic alloction of the subplot array dimensions. Returns
@@ -164,9 +164,9 @@ class PlotStack:
         for index, plot in enumerate(self.plots):
             if(xplt> 1 and yplt>1):
                 ind = np.unravel_index(index,(xplt, yplt))
-                ax = plot.draw_interval(self.sfigint[ind[0],ind[1]]);
+                ax = plot.draw_interval(self.sfigint[ind[0],ind[1]], mo_separate);
             else:
-                ax = plot.draw_interval(self.sfigint[index])
+                ax = plot.draw_interval(self.sfigint[index], mo_separate)
             self.axesint.append(ax)
         return self.figint, self.sfigint, self.axesint
 
