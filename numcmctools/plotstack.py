@@ -129,22 +129,22 @@ class PlotStack:
 
         self.figplt = plt.figure()
         self.sfigplt = self.figplt.subfigures(xplt, yplt)
+        self.saxesplt = []
 
         for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigplt.flat)):
-            #ax = None
             if plot.mo_option:
-                #a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
-                #ax = [a1, a2]
                 ax = subfig.subplots(1,2, sharey='row', squeeze=True)
                 subfig.subplots_adjust(wspace=0)
+                self.saxesplt.append(ax)
             else:
                 ax = subfig.add_subplot()
+                self.saxesplt.append([ax])
 
             plot.draw_plot(ax)
 
             for ax in subfig.get_axes():
                 ax.label_outer()
-        return self.figplt, self.sfigplt
+        return self.figplt, self.sfigplt, self.saxesplt
 
     def draw_intervals(self, plot_array_dim = [], mo_separate=True):
         """
@@ -166,23 +166,23 @@ class PlotStack:
 
         self.figint = plt.figure()
         self.sfigint = self.figint.subfigures(xplt, yplt)
+        self.axesint = []
         
         for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigint.flat)):
             ax = None
             if plot.mo_option:
-                #a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
-                #ax = [a1, a2]
                 ax = subfig.subplots(1,2, sharey='row', squeeze=True)
+                self.axesint.append(ax)
                 subfig.subplots_adjust(wspace=0)
             else:
                 ax = subfig.add_subplot()
-
+                self.axesint.append([ax])
             plot.draw_interval(ax)
 
             for ax in subfig.get_axes():
                 ax.label_outer()
 
-        return self.figint, self.sfigint
+        return self.figint, self.sfigint, self.axesint
 
     def __determine_plot_array(self):
         """

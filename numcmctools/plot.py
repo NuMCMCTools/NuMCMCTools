@@ -130,12 +130,12 @@ class Plot:
         if isinstance(saxis, plt.Axes):
             if self.nvar > 1 and self.mo_option:
                 raise ValueError(f"Cannot plot 2 2D heatmaps on top of each other, need to provide 2 plt.Axes in a list")
-        elif isinstance(saxis, list) and all(isinstance(ax, plt.Axes) for ax in saxis) and self.mo_option:
+        elif isinstance(saxis, (list, np.ndarray)) and all(isinstance(ax, plt.Axes) for ax in saxis):
             if len(saxis) > 2:
                 raise ValueError(f"Maximum length of the axis list is 2, one per mass ordering of Deltam2_32")
             is_axis_array = True
         else:
-            raise ValueError(f"draw_plot: You can either provide list of plt.Axes objects with mo_option=True, or single plt.Axes object with mo_option=False!")
+            raise ValueError("Wrong instance of axes, should be either plt.Axes or List[plt.axes]!")
 
         if(self.nvar==1):
             if self.mo_option:
@@ -184,12 +184,12 @@ class Plot:
         is_axis_array = False
         if isinstance(saxis, plt.Axes):
             is_axis_array = False
-        elif isinstance(saxis, list) and all(isinstance(ax, plt.Axes) for ax in saxis) and self.mo_option:
+        elif isinstance(saxis, (list, np.ndarray)) and all(isinstance(ax, plt.Axes) for ax in saxis):
             if len(saxis) > 2:
                 raise ValueError(f"Maximum length of the axis list is 2, one per mass ordering of Deltam2_32")
             is_axis_array = True
         else:
-            raise ValueError(f"draw_interval: You can either provide list of plt.Axes objects with mo_option=True, or single plt.Axes object with mo_option=False!")
+            raise ValueError("Wrong instance of axes, should be either plt.Axes or List[plt.axes]!")
         
         #need to put in a check if the intervals have been calculated
         if(self.nvar==1):
