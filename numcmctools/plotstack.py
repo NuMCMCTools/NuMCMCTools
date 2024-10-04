@@ -3,7 +3,10 @@ from .mcmcsamples import MCMCSamples
 from .jacobiangraph import JacobianGraph
 import numpy as np
 from tqdm import tqdm
+import logging
 import matplotlib.pyplot as plt
+
+logger = logging.getLogger(__name__)
 
 class PlotStack:
     def __init__(self, chain: MCMCSamples):
@@ -41,17 +44,17 @@ class PlotStack:
         # TODO: Would be nice to have some "verbose" option.
         plot_jacobians = {}
         if not priors:
-            print(f"No priors supplied for plot with variables: {variables}, will be uniform in whatever the supplied chain is in.")
+            logger.debug(f"No priors supplied for plot with variables: {variables}, will be uniform in whatever the supplied chain is in.")
             for var in self.chain.compulsory_variables:
                 plot_jacobians[var] = None
         else:
             parsed_priors = self.jacobian_graph.parse_priors(priors, self.chain.compulsory_variables)
             for var in self.chain.compulsory_variables:
                 if var not in parsed_priors:
-                    print(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chain is in.")
+                    logger.debug(f"No prior for variable {var} supplied in plot: {variables}, will be uniform in whatever the supplied chain is in.")
                     plot_jacobians[var] = None
                 else:
-                    print(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
+                    logger.debug(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
                     plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], parsed_priors[var])
 
         # Crash if user supplied a non-existant variable
@@ -104,7 +107,7 @@ class PlotStack:
         for plot in self.plots:
             plot.make_intervals(levels)       
  
-    def draw_plots(self, plot_array_dim = []):
+    def draw_plots(self, plot_array_dim = [],mo_separate=True):
         """
         Draw all the plots on a freshly created figure with
         automatic alloction of the subplot array dimensions. Returns
@@ -112,6 +115,8 @@ class PlotStack:
 
         :plot_array_dim: an array of two numbers to override the 
         automatic dimensioning
+
+        returns the figure, subfigures, and subplots
 
         """
         xplt=1
@@ -126,10 +131,11 @@ class PlotStack:
         self.sfigplt = self.figplt.subfigures(xplt, yplt)
 
         for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigplt.flat)):
-            ax = None
+            #ax = None
             if plot.mo_option:
-                a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
-                ax = [a1, a2]
+                #a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
+                #ax = [a1, a2]
+                ax = subfig.subplots(1,2, sharey='row', squeeze=True)
                 subfig.subplots_adjust(wspace=0)
             else:
                 ax = subfig.add_subplot()
@@ -140,7 +146,7 @@ class PlotStack:
                 ax.label_outer()
         return self.figplt, self.sfigplt
 
-    def draw_intervals(self, plot_array_dim = []):
+    def draw_intervals(self, plot_array_dim = [], mo_separate=True):
         """
         Draw all the intervals plots on a freshly created figure with
         automatic alloction of the subplot array dimensions. Returns
@@ -164,8 +170,9 @@ class PlotStack:
         for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigint.flat)):
             ax = None
             if plot.mo_option:
-                a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
-                ax = [a1, a2]
+                #a1, a2 = subfig.subplots(1,2, sharey='row', squeeze=True)
+                #ax = [a1, a2]
+                ax = subfig.subplots(1,2, sharey='row', squeeze=True)
                 subfig.subplots_adjust(wspace=0)
             else:
                 ax = subfig.add_subplot()
@@ -176,7 +183,6 @@ class PlotStack:
                 ax.label_outer()
 
         return self.figint, self.sfigint
-
 
     def __determine_plot_array(self):
         """

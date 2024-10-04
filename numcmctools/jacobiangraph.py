@@ -1,7 +1,10 @@
 import sympy as sp
 import re
+import logging
 from typing import Callable, Optional, Dict, Tuple, List
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 class JacobianGraph:
 
@@ -59,14 +62,14 @@ class JacobianGraph:
             jacobian = sp.Abs(dtarget_dx / dsource_dx)
 
             if jacobian == 0:
-                print(f"Jacobian transformation from {source} to {target} not possible, got 0")
+                logger.debug(f"Jacobian transformation from {source} to {target} not possible, got 0")
                 return None
 
             # Return numpified Jacobian transform function
             return sp.lambdify(self.x, target, modules=['numpy']), sp.lambdify(self.x, jacobian, modules=['numpy'])
 
         except Exception as e:
-            print(f"Jacobian transformation from {source} to {target} error: {e}")
+            logger.error(f"Jacobian transformation from {source} to {target} error: {e}")
             return None
 
     def __build_graphs(self):
@@ -190,7 +193,7 @@ class JacobianGraph:
 
         # Error checking
         if from_dist_type != 'Uniform':
-            print(f"Warning: Transforming from a gaussian distribution not supported, here be dragons!")
+            logger.debug(f"Transforming from a gaussian distribution not supported, here be dragons!")
         if from_expr not in self.jacobian_graph or to_expr not in self.jacobian_graph[from_expr]:
             raise ValueError(f"No direct transformation available for {from_prior} to {to_prior}")
 

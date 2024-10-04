@@ -8,11 +8,9 @@ from numcmctools import PlotStack, MCMCSamples
 
 # Get the path of the test MCMC chain file
 script_dir = os.path.dirname(os.path.abspath(__file__))
-#root_file_path = os.path.join(script_dir, "T2K_CommonFormat_OA2023.root")
 root_file_path = os.path.join(script_dir, "testchaindata.root")
 
 # Create the MCMCSamples object
-#samples = MCMCSamples(root_file_path, "osc_posteriors")
 samples = MCMCSamples(root_file_path, "mcmc")
 
 def AbsSinDcp(DeltaCP) ->np.ndarray:
@@ -68,6 +66,30 @@ stack.add_plot(["SinSqTheta23", "AbsDm2_32"],priors,[50, 50], [[0.35, 0.65], [2.
 stack.fill_plots()
 stack.make_intervals([0.68,0.95])
 stack.draw_plots()
-stack.draw_intervals()
+fig, sfig, axs = stack.draw_intervals()
+
+
+#all the things on the plot can be called with get_children
+#this changes the color of the 1D histograms in a MO split plot
+plot0_no = axs[0][0].get_children()
+plot0_no[0].set_edgecolor('red')
+plot0_no[1].set_facecolor('red')
+plot0_no[2].set_facecolor('red')
+
+plot0_io = axs[0][1].get_children()
+plot0_io[0].set_edgecolor('blue')
+plot0_io[1].set_facecolor('blue')
+plot0_io[2].set_facecolor('blue')
+
+print(axs[6])
+
+#For a 2D plot, you can remove the color histogram and just leave
+#the contours and also change their color
+plot6 = axs[6][0].get_children()
+plot6[0].remove()
+plot6[1].set_edgecolor('magenta')
+#why not improve the axis labels while we're at it
+axs[6][0].set_xlabel(r'$\sin^2\theta_{23}$')
+axs[6][0].set_ylabel(r'$\sin^2 2\theta_{13}$')
 
 plt.show()

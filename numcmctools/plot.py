@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import logging
 from .jacobiangraph import JacobianGraph
+from typing import Union, List
+
+logger = logging.getLogger(__name__)
 
 class Plot:
     def __init__(self, variables, jacobians, bins, axrange=None, mo_option=False):
@@ -42,7 +46,7 @@ class Plot:
                 self.hist_no = np.zeros(np.shape(self.hist))
                 self.hist_io = np.zeros(np.shape(self.hist))
         else:
-            print("too many or too few variables!")
+            logger.error("too many or too few variables!")
             return
                 
     def fill_plot(self, data, weights=None):
@@ -85,7 +89,7 @@ class Plot:
                     hist, edgesx, edgesy = np.histogram2d(data[self.variables[0]], data[self.variables[1]], self.bins, self.axrange, weights = weights)
                     self.hist += hist
         else:
-            print("histogram was finalized already! No filling allowed!")
+            logger.warn("histogram was finalized already! No filling allowed!")
 
     def finalize_histogram(self):
         """
@@ -113,10 +117,12 @@ class Plot:
                     self.hist_io = self.hist[sh[0]:,:]
             self.finalized = True
             
-    def draw_plot(self, saxis: plt.Figure):
+    def draw_plot(self, saxis: Union[plt.Axes, List[plt.Axes]]):
         """
         Draw the plot. 
-        :sfig: matplotlib axes to draw the plot on
+        :saxis: matplotlib axis, or a list of axes to draw the plot on
+
+        returns 1 or 2 matplotlib subplots for further manipulation
         """
 
         # Make sure the input either plt.Axes or array of plt.Axes
@@ -156,20 +162,23 @@ class Plot:
                     cm = saxis[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
                     saxis[1].set_xlabel(self.variables[0]+" IO")
                 else:
-                    cm = saxis.pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
-                    saxis[0].set_xlabel(self.variables[0]+" NO")
-                    saxis[0].set_ylabel(self.variables[1])
-                    cm = saxis[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
-                    saxis[1].set_xlabel(self.variables[0]+" IO")
+                    logger.error("2D color orverlap looks terrible, not drawn!")
+                    #cm = saxis.pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                    #saxis[0].set_xlabel(self.variables[0]+" NO")
+                    #saxis[0].set_ylabel(self.variables[1])
+                    #cm = saxis[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                    #saxis[1].set_xlabel(self.variables[0]+" IO")
             else:
                 cm = saxis.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
                 saxis.set_xlabel(self.variables[0])
                 saxis.set_ylabel(self.variables[1])
 
-    def draw_interval(self, saxis: plt.Axes):
+    def draw_interval(self, saxis: Union[plt.Axes, List[plt.Axes]]):
         """
-        Draw the intervals. To be improved
-        :ax: matplotlib axes to draw the plot on
+        Draw the intervals.
+        :saxes: matplotlib axes, or list of axes, to draw the plot on
+
+        returns 1 or 2 matplotlib subplots for further manipulation
         """
 
         is_axis_array = False
@@ -185,6 +194,7 @@ class Plot:
         #need to put in a check if the intervals have been calculated
         if(self.nvar==1):
             if self.mo_option:
+
                 if is_axis_array:
                     saxis[0].stairs(self.hist_no,self.edges[0], color='black')
                     for lev in self.prob_levels:
@@ -204,7 +214,6 @@ class Plot:
                     saxis.stairs(self.hist_io,self.edges[0], color='lightcoral')
                     for lev in self.prob_levels:
                         saxis.stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='lightcoral', alpha=0.3)
-                    saxis.set_xlabel(self.variables[0])
             else:
                 saxis.stairs(self.hist,self.edges[0], color='black')
                 for lev in self.prob_levels:
@@ -236,7 +245,6 @@ class Plot:
                 saxis.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
                 saxis.set_xlabel(self.variables[0])
                 saxis.set_ylabel(self.variables[1])
-
         
     def make_intervals(self,levels):
         """
@@ -272,7 +280,3 @@ class Plot:
                 if(process_sum/total > self.levels[nlev]):
                     self.prob_levels[nlev]=self.hist[index_sort_unrav[0][index-1],index_sort_unrav[1][index-1]]
                     nlev-=1            
-                        
-        
-        
-
