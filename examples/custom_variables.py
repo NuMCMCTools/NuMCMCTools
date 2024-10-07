@@ -81,13 +81,9 @@ plot0_io[0].set_edgecolor('blue')
 plot0_io[1].set_facecolor('blue')
 plot0_io[2].set_facecolor('blue')
 
-print(axs[6])
-
-#For a 2D plot, you can remove the color histogram and just leave
-#the contours and also change their color
+#For a 2D plot, you can change the contour color
 plot6 = axs[6][0].get_children()
-plot6[0].remove()
-plot6[1].set_edgecolor('magenta')
+plot6[0].set_edgecolor('magenta')
 #why not improve the axis labels while we're at it
 axs[6][0].set_xlabel(r'$\sin^2\theta_{23}$')
 axs[6][0].set_ylabel(r'$\sin^2 2\theta_{13}$')
