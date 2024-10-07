@@ -129,17 +129,22 @@ class PlotStack:
 
         self.figplt = plt.figure()
         self.sfigplt = self.figplt.subfigures(xplt, yplt)
+        self.saxesplt = []
 
-        self.axesplt = []
-
-        for index, plot in enumerate(self.plots):
-            if(xplt> 1 and yplt>1):
-                ind = np.unravel_index(index,(xplt, yplt))
-                ax = plot.draw_plot(self.sfigplt[ind[0],ind[1]], mo_separate);
+        for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigplt.flat)):
+            if plot.mo_option:
+                ax = subfig.subplots(1,2, sharey='row', squeeze=True)
+                subfig.subplots_adjust(wspace=0)
+                self.saxesplt.append(ax)
             else:
-                ax = plot.draw_plot(self.sfigplt[index], mo_separate)
-            self.axesplt.append(ax)
-        return self.figplt, self.sfigplt, self.axesplt
+                ax = subfig.add_subplot()
+                self.saxesplt.append([ax])
+
+            plot.draw_plot(ax)
+
+            for ax in subfig.get_axes():
+                ax.label_outer()
+        return self.figplt, self.sfigplt, self.saxesplt
 
     def draw_intervals(self, plot_array_dim = [], mo_separate=True):
         """
@@ -161,18 +166,23 @@ class PlotStack:
 
         self.figint = plt.figure()
         self.sfigint = self.figint.subfigures(xplt, yplt)
-
         self.axesint = []
-
-        for index, plot in enumerate(self.plots):
-            if(xplt> 1 and yplt>1):
-                ind = np.unravel_index(index,(xplt, yplt))
-                ax = plot.draw_interval(self.sfigint[ind[0],ind[1]], mo_separate);
+        
+        for index, (plot, subfig) in enumerate(zip(self.plots, self.sfigint.flat)):
+            ax = None
+            if plot.mo_option:
+                ax = subfig.subplots(1,2, sharey='row', squeeze=True)
+                self.axesint.append(ax)
+                subfig.subplots_adjust(wspace=0)
             else:
-                ax = plot.draw_interval(self.sfigint[index], mo_separate)
-            self.axesint.append(ax)
-        return self.figint, self.sfigint, self.axesint
+                ax = subfig.add_subplot()
+                self.axesint.append([ax])
+            plot.draw_interval(ax)
 
+            for ax in subfig.get_axes():
+                ax.label_outer()
+
+        return self.figint, self.sfigint, self.axesint
 
     def __determine_plot_array(self):
         """

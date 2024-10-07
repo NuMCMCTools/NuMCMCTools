@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 from .jacobiangraph import JacobianGraph
+from typing import Union, List
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class Plot:
         
         if not self.finalized:
             if(self.nvar==1):
-                if(self.mo_option):
+                if self.mo_option:
                     hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights*np.greater_equal(data["Deltam2_32"],0))
                     self.hist_no += hist
                     hist, edges = np.histogram(data[self.variables[0]], self.bins, self.axrange, weights = weights*np.less_equal(data["Deltam2_32"],0))
@@ -116,105 +117,108 @@ class Plot:
                     self.hist_io = self.hist[sh[0]:,:]
             self.finalized = True
             
-    def draw_plot(self, sfig: plt.Figure, mo_separate=True):
+    def draw_plot(self, saxis: Union[plt.Axes, List[plt.Axes]]):
         """
         Draw the plot. 
-        :sfig: matplotlib subfigure to draw the plot on
+        :saxis: matplotlib axis, or a list of axes to draw the plot on
 
         returns 1 or 2 matplotlib subplots for further manipulation
         """
 
-        ax = sfig.get_axes()
+        # Make sure the input either plt.Axes or array of plt.Axes
+        is_axis_array = False
+        if isinstance(saxis, plt.Axes):
+            if self.nvar > 1 and self.mo_option:
+                raise ValueError(f"Cannot plot 2 2D heatmaps on top of each other, need to provide 2 plt.Axes in a list")
+        elif isinstance(saxis, (list, np.ndarray)) and all(isinstance(ax, plt.Axes) for ax in saxis):
+            if len(saxis) > 2:
+                raise ValueError(f"Maximum length of the axis list is 2, one per mass ordering of Deltam2_32")
+            is_axis_array = True
+        else:
+            raise ValueError("Wrong instance of axes, should be either plt.Axes or List[plt.axes]!")
 
-        if len(ax)==0:
-            if self.mo_option and mo_separate:
-                ax = sfig.subplots(1,2, sharey=True)
-            else:
-                ax = []
-                ax.append(sfig.subplots(1,1))
-        
         if(self.nvar==1):
             if self.mo_option:
-                if mo_separate:
-                    ax[0].stairs(self.hist_no,self.edges[0])
-                    ax[0].set_xlabel(self.variables[0]+" NO")
-                    ax[1].stairs(self.hist_io,self.edges[0])
-                    ax[1].set_xlabel(self.variables[0]+" IO")
+                if is_axis_array:
+                    saxis[0].stairs(self.hist_no,self.edges[0])
+                    saxis[0].set_xlabel(self.variables[0]+" NO")
+                    saxis[1].stairs(self.hist_io,self.edges[0])
+                    saxis[1].set_xlabel(self.variables[0]+" IO")
                 else:
-                    ax[0].stairs(self.hist_no,self.edges[0])
-                    ax[0].stairs(self.hist_io,self.edges[0])
-                    ax[0].set_xlabel(self.variables[0])
-                                
+                    saxis.stairs(self.hist_no,self.edges[0])
+                    saxis.stairs(self.hist_io,self.edges[0])
+                    saxis.set_xlabel(self.variables[0])
+
             else:
-                ax[0].stairs(self.hist,self.edges[0])
-                ax[0].set_xlabel(self.variables[0])
+                saxis.stairs(self.hist,self.edges[0])
+                saxis.set_xlabel(self.variables[0])
 
         if(self.nvar==2):
             if self.mo_option:
-                if mo_separate:
-                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
-                    ax[0].set_xlabel(self.variables[0]+" NO")
-                    ax[0].set_ylabel(self.variables[1])
-                    cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
-                    ax[1].set_xlabel(self.variables[0]+" IO")
+                if is_axis_array:
+                    cm = saxis[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                    saxis[0].set_xlabel(self.variables[0]+" NO")
+                    saxis[0].set_ylabel(self.variables[1])
+                    cm = saxis[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                    saxis[1].set_xlabel(self.variables[0]+" IO")
                 else:
-                    print("2D color overlap looks terrible, not drawn!")
+                    logger.error("2D color orverlap looks terrible, not drawn!")
+                    #cm = saxis.pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
+                    #saxis[0].set_xlabel(self.variables[0]+" NO")
+                    #saxis[0].set_ylabel(self.variables[1])
+                    #cm = saxis[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
+                    #saxis[1].set_xlabel(self.variables[0]+" IO")
             else:
-                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-                ax[0].set_xlabel(self.variables[0])
-                ax[0].set_ylabel(self.variables[1])
+                cm = saxis.pcolormesh(self.edges[0], self.edges[1], self.hist.T)
+                saxis.set_xlabel(self.variables[0])
+                saxis.set_ylabel(self.variables[1])
 
-        if self.mo_option:
-            sfig.subplots_adjust(wspace=0)
-
-        return ax
-
-
-    def draw_interval(self, sfig: plt.Figure, mo_separate=True):
+    def draw_interval(self, saxis: Union[plt.Axes, List[plt.Axes]]):
         """
         Draw the intervals.
-        :sfig: matplotlib subfigure to draw the plot on
+        :saxes: matplotlib axes, or list of axes, to draw the plot on
 
         returns 1 or 2 matplotlib subplots for further manipulation
         """
 
-  
-        ax = sfig.get_axes()
-
-        if len(ax)==0:
-            if self.mo_option and mo_separate:
-                ax = sfig.subplots(1,2, sharey=True)
-            else:
-                ax = []
-                ax.append(sfig.subplots(1,1))
+        is_axis_array = False
+        if isinstance(saxis, plt.Axes):
+            is_axis_array = False
+        elif isinstance(saxis, (list, np.ndarray)) and all(isinstance(ax, plt.Axes) for ax in saxis):
+            if len(saxis) > 2:
+                raise ValueError(f"Maximum length of the axis list is 2, one per mass ordering of Deltam2_32")
+            is_axis_array = True
+        else:
+            raise ValueError("Wrong instance of axes, should be either plt.Axes or List[plt.axes]!")
         
         #need to put in a check if the intervals have been calculated
         if(self.nvar==1):
             if self.mo_option:
-                if mo_separate:
-                    ax[0].stairs(self.hist_no,self.edges[0], color='black')
-                    for lev in self.prob_levels:
-                        ax[0].stairs(self.hist_no*np.greater_equal(self.hist_no,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
-                    ax[0].set_xlabel(self.variables[0]+" NO")
-                
-                    ax[1].stairs(self.hist_io,self.edges[0], color='black')
-                    for lev in self.prob_levels:
-                        ax[1].stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
-                    ax[1].set_xlabel(self.variables[0]+" IO")
-                else:
-                    ax[0].stairs(self.hist_no,self.edges[0], color='black')
-                    for lev in self.prob_levels:
-                        ax[0].stairs(self.hist_no*np.greater_equal(self.hist_no,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
-                    ax[0].set_xlabel(self.variables[0])
-                    ax[0].stairs(self.hist_io,self.edges[0], color='blue')
-                    for lev in self.prob_levels:
-                        ax[0].stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='blue', alpha=0.3)
 
+                if is_axis_array:
+                    saxis[0].stairs(self.hist_no,self.edges[0], color='black')
+                    for lev in self.prob_levels:
+                        saxis[0].stairs(self.hist_no*np.greater_equal(self.hist_no,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+                    saxis[0].set_xlabel(self.variables[0]+" NO")
+
+                    saxis[1].stairs(self.hist_io,self.edges[0], color='black')
+                    for lev in self.prob_levels:
+                        saxis[1].stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+                    saxis[1].set_xlabel(self.variables[0]+" IO")
+                else:
+                    saxis.stairs(self.hist_no,self.edges[0], color='cornflowerblue')
+                    for lev in self.prob_levels:
+                        saxis.stairs(self.hist_no*np.greater_equal(self.hist_no,lev),self.edges[0], fill=True, color='cornflowerblue', alpha=0.3)
+                    saxis.set_xlabel(self.variables[0])
+
+                    saxis.stairs(self.hist_io,self.edges[0], color='lightcoral')
+                    for lev in self.prob_levels:
+                        saxis.stairs(self.hist_io*np.greater_equal(self.hist_io,lev),self.edges[0], fill=True, color='lightcoral', alpha=0.3)
             else:
-                ax[0].stairs(self.hist,self.edges[0], color='black')
+                saxis.stairs(self.hist,self.edges[0], color='black')
                 for lev in self.prob_levels:
-                    ax[0].stairs(self.hist*np.greater_equal(self.hist,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
-                ax[0].set_xlabel(self.variables[0])
+                    saxis.stairs(self.hist*np.greater_equal(self.hist,lev),self.edges[0], fill=True, color='grey', alpha=0.3)
+                saxis.set_xlabel(self.variables[0])
         
         if(self.nvar==2):
 
@@ -225,35 +229,22 @@ class Plot:
             linestyles = list(reversed(linestyles))
 
             if self.mo_option:
-                if mo_separate:
-                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
-                    ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                    ax[0].set_xlabel(self.variables[0]+" NO")
-                    ax[0].set_ylabel(self.variables[1])
-                    cm = ax[1].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
-                    ax[1].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                    ax[1].set_xlabel(self.variables[0]+" IO")
+                if is_axis_array:
+                    saxis[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                    saxis[0].set_xlabel(self.variables[0]+" NO")
+                    saxis[0].set_ylabel(self.variables[1])
+                    saxis[1].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                    saxis[1].set_xlabel(self.variables[0]+" IO")
                 else:
-                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_no.T)
-                    ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='black')
-                    ax[0].set_ylabel(self.variables[1])
-                    cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist_io.T)
-                    ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='blue')
-                    ax[0].set_xlabel(self.variables[0])
-                    plot = ax[0].get_children()
-                    plot[0].remove()
-                    plot[2].remove()
-                    
+                    saxis.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_no.T, np.sort(self.prob_levels), linestyles=linestyles, colors='cornflowerblue')
+                    saxis.set_xlabel(self.variables[0]+" NO")
+                    saxis.set_ylabel(self.variables[1])
+                    saxis.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist_io.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightcoral')
+                    saxis.set_xlabel(self.variables[0]+" IO")
             else:
-                cm = ax[0].pcolormesh(self.edges[0], self.edges[1], self.hist.T)
-                ax[0].contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
-                ax[0].set_xlabel(self.variables[0])
-                ax[0].set_ylabel(self.variables[1])
-
-        if self.mo_option:
-            sfig.subplots_adjust(wspace=0)
-
-        return ax
+                saxis.contour(0.5*(self.edges[0][:-1]+self.edges[0][1:]), 0.5*(self.edges[1][:-1]+self.edges[1][1:]),self.hist.T, np.sort(self.prob_levels), linestyles=linestyles, colors='lightgrey')
+                saxis.set_xlabel(self.variables[0])
+                saxis.set_ylabel(self.variables[1])
         
     def make_intervals(self,levels):
         """
@@ -289,7 +280,3 @@ class Plot:
                 if(process_sum/total > self.levels[nlev]):
                     self.prob_levels[nlev]=self.hist[index_sort_unrav[0][index-1],index_sort_unrav[1][index-1]]
                     nlev-=1            
-                        
-        
-        
-

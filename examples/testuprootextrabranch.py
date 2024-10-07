@@ -29,7 +29,8 @@ stack.fill_plots()
 
 
 fig = plt.figure()
-axs = fig.subfigures(3, 2)
+gs = fig.add_gridspec(3,2)
+axs = gs.subplots()
 
 stack.plots[0].draw_plot(axs[0,0])
 stack.plots[1].draw_plot(axs[1,0])
