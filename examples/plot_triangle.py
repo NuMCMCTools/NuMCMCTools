@@ -59,7 +59,7 @@ def main(file: str, chain_name: str):
         stack.add_plot([variable_names[j], variable_names[i]], priors, [bins[j], bins[i]], [ranges[j], ranges[i]], True)
 
   # Fill the plots
-  stack.fill_plots(batchsize=1000000)
+  stack.fill_plots()
 
   # Plot with pyplot
   n = len(variable_names)

@@ -38,8 +38,10 @@ class MCMCSamples:
         self.__check_and_extract_variables()
         # Get self.priors
         self.__check_and_extract_priors()
+        # Get citation
+        self.citation = uproot.open(f"{self.filepath}:citation")
 
-        logger.info(f"Successfully initialised MCMCSamples object with ROOT file '{self.filepath}' and '{self.treename}' TTree inside")
+        logger.info(f"Successfully initialised MCMCSamples object with ROOT file '{self.filepath}' and '{self.treename}' TTree inside. The citation for this chain is '{self.citation}'.")
 
 
     def __check_and_extract_variables(self):
