@@ -38,6 +38,9 @@ applies to. For example, a specification of
 
 indicates that the prior for Theta23 is uniform in $\sin^2\theta_{23}$.
 
+The file additional contains a citation to the original analysis that
+produced the chain. 
+
 There may be additional information contained in the file; please see
 the data release from the particular analysis for more detail.
 
@@ -84,7 +87,8 @@ of steps read from the tree to be `batchsize` at any given time, which
 is helpful for memory management. Above a batch size of approximately
 100000, there is no performance impact on the time it takes to read
 large trees and fill plots; this value is therefore set at the
-default. 
+default. The number of plots to be filled does have an impact on the run
+time of the code. 
 
 After the histograms are filled, they are normalized to create
 probability _density_ functions, such that individual bins are
@@ -103,17 +107,15 @@ than `subplots`, as `subplots` is used internally.
 The plot stack can also be used to automatically draw all of the plots
 in the stack, choosing the optimal dimensions for the subfigure array.
 
-An example of the plotting features is in `examples/testuproot.py` and
+An example of the plotting features is in `examples/simpleplots.py` and
 can be run as follows: 
 
-Example that loads example chain and makes example plots
- (`examples/testuproot.py`) and can be run as follows:
  ```
- python -m examples.testuproot
+ python -m examples.simpleplots
 ```
 The output of this example should look as follows
 
-<img width="2869" alt="testuproot" src="https://github.com/user-attachments/assets/db68f411-2a06-4646-83c1-db8da26b5b41">
+![simpleplots](https://github.com/user-attachments/assets/e79060c5-42f4-43b5-90b9-6e89aa0b7f0a)
 
 
 ## Derived Variables
@@ -134,9 +136,11 @@ can be run as follows:
  ```
  python -m examples.custom_variables
 ```
-The output of this example should look as follows
+The output of this example should have two canvases which look as follows
 
-<img width="2909" alt="custom_variables" src="https://github.com/user-attachments/assets/45125ba5-455c-4bc2-b1a7-6a5422fd541b">
+![custom_variable_1](https://github.com/user-attachments/assets/a6243f95-7cc4-4e21-bd27-27777a404b6e)
+![custom_variable_2](https://github.com/user-attachments/assets/f377d5fa-6154-41d7-b3aa-1a3822b2a95b)
+
 
 
 ## Changing Priors
@@ -168,3 +172,23 @@ in $\sin\delta_{CP}$:
 ["Uniform:sin(DeltaCP)"]
 ```
 Examples of this in practice are in the `custom_variables` example. 
+
+## Plotting
+
+Plots can be drawn directly from the `plotstack` (shown in the `custom_variables` 
+example), where the arrangement of pdfs or intervals is done algorithmically. 
+For more control, the figure and its subdivisions can be arranged by the user
+and each plot drawn individually. An example of the latter is shown in both the
+`simpleplots` example, and in the `plot_triangle` example, which creates a standard
+triangle (corner) plot with the mass ordering separated. This example can be run as 
+follows:
+
+ ```
+  python -m examples.plot_triangle -f examples/testchaindata.root -c mcmc    
+```
+which produces the output below.
+
+![triangle_noio](https://github.com/user-attachments/assets/3f5940dc-cf99-4244-b82e-608c4112cd84)
+
+
+
