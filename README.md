@@ -1,7 +1,7 @@
 # NuMCMCTools
 
 This package is intended as a lightweight tool to assist in analysis using 
-public releases of MCMC chains from neutrino oscilliation analyses. The 
+public releases of MCMC chains from neutrino oscillation analyses. The
 following experiments have released data compatible with this software:
 
 * Experiment 1
@@ -10,7 +10,7 @@ following experiments have released data compatible with this software:
 
 ## File Format
 
-The expected input format for this code is a ROOT file containg at
+The expected input format for this code is a ROOT file containing at
 least one TTree. The tree can have any name. Inside the tree, there
 will be at least six branches called:
 
@@ -38,7 +38,7 @@ applies to. For example, a specification of
 
 indicates that the prior for Theta23 is uniform in $\sin^2\theta_{23}$.
 
-The file additional contains a citation to the original analysis that
+The file additionally contains a citation to the original analysis that
 produced the chain. 
 
 There may be additional information contained in the file; please see
