@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "numcmctools"
-version = "0.1.0"
+version = "0.1.14"
 license = { file = "LICENSE" }
 
 description = "MCMC plotting framework for official results from neutrino oscillation experiments"
@@ -54,8 +54,12 @@ Documentation = "https://github.com/NuMCMCTools/NuMCMCTools/blob/main/README.md"
 Repository = "https://github.com/NuMCMCTools/NuMCMCTools.git"
 "Issues" = "https://github.com/NuMCMCTools/NuMCMCTools/issues"
 
-[project.scripts]
-plot_triangle = "numcmctools.examples.plot_triangle:main"
-
 [tool.setuptools]
 package-data = {"rootfiles" = ["*root"]}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[project.scripts]
+plot_triangle = "examples.plot_triangle:run"

@@ -111,13 +111,16 @@ def main(file: str, chain_name: str):
   fig.set_size_inches(10, 10)
   plt.savefig("triangle_noio.png", dpi=300)
 
-if __name__ == "__main__":
+def run():
   import argparse
   
   parser = argparse.ArgumentParser()
 
-  parser.add_argument('-f', '--file', dest="file")
-  parser.add_argument('-c', '--chain', dest="chain")
+  parser.add_argument('-f', '--file', dest="file", required=True, help="Input root file with the MCMC samples")
+  parser.add_argument('-c', '--chain', dest="chain", required=True, help="Chain TTree name in the MCMC file")
 
   args = parser.parse_args()
   main(str(args.file), str(args.chain))
+
+if __name__ == "__main__":
+    run()
