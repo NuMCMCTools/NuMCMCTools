@@ -65,27 +65,34 @@ stack.add_plot(["SinSqTheta23", "AbsDm2_32"],priors,[50, 50], [[0.35, 0.65], [2.
 # Fill the plots
 stack.fill_plots()
 stack.make_intervals([0.68,0.95])
-stack.draw_plots()
-fig, sfig, axs = stack.draw_intervals()
+fig0, sfig0, axs0 = stack.draw_plots()
+fig1, sfig1, axs1 = stack.draw_intervals()
 
 
 #all the things on the plot can be called with get_children
 #this changes the color of the 1D histograms in a MO split plot
-plot0_no = axs[0][0].get_children()
+plot0_no = axs1[0][0].get_children()
 plot0_no[0].set_edgecolor('red')
 plot0_no[1].set_facecolor('red')
 plot0_no[2].set_facecolor('red')
 
-plot0_io = axs[0][1].get_children()
+plot0_io = axs1[0][1].get_children()
 plot0_io[0].set_edgecolor('blue')
 plot0_io[1].set_facecolor('blue')
 plot0_io[2].set_facecolor('blue')
 
 #For a 2D plot, you can change the contour color
-plot6 = axs[6][0].get_children()
+plot6 = axs1[6][0].get_children()
 plot6[0].set_edgecolor('magenta')
 #why not improve the axis labels while we're at it
-axs[6][0].set_xlabel(r'$\sin^2\theta_{23}$')
-axs[6][0].set_ylabel(r'$\sin^2 2\theta_{13}$')
+axs1[6][0].set_xlabel(r'$\sin^2\theta_{23}$')
+axs1[6][0].set_ylabel(r'$\sin^2 2\theta_{13}$')
 
-plt.show()
+fig0.set_size_inches(16,12)
+fig1.set_size_inches(16,12)
+
+fig0.savefig('custom_variables_0.pdf')
+fig1.savefig('custom_variables_1.pdf')
+
+#Can be used if you have Qt set up
+#plt.show()

@@ -55,6 +55,6 @@ stack.plots[1].make_intervals([0.68,0.95])
 stack.plots[1].draw_interval(ax3)
 stack.plots[1].draw_interval([ax4_no, ax4_io])
 
-
-plt.show()
+fig.tight_layout()
+fig.savefig('simpleplots.pdf')
 
