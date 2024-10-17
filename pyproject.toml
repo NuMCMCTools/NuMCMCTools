@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "numcmctools"
+version = "1.0.0"
+license = { file = "LICENSE" }
+
+description = "MCMC plotting framework for official results from neutrino oscillation experiments"
+authors = [
+  { name = "Asher Kaboth", email = "Asher.Kaboth@rhul.ac.uk"},
+  { name = "Artur Sztuc", email = "a.sztuc@ucl.ac.uk"}
+]
+maintainers = [
+  { name = "Asher Kaboth", email = "Asher.Kaboth@rhul.ac.uk"},
+  { name = "Artur Sztuc", email = "a.sztuc@ucl.ac.uk"}
+]
+
+readme = "README.md"
+keywords = ["neutrino", "physics", "HEP", "MCMC", "plotting"]
+
+classifiers=[
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
+    'Programming Language :: Python :: 3 :: Only',
+    'Topic :: Scientific/Engineering :: Physics',
+    'Operating System :: OS Independent'
+]
+
+requires-python = ">=3.8"
+dependencies = [
+  "numpy",
+  "matplotlib",
+  "sympy",
+  "tqdm",
+  "uproot"
+]
+
+[project.urls]
+Homepage = "https://github.com/NuMCMCTools/NuMCMCTools"
+Documentation = "https://github.com/NuMCMCTools/NuMCMCTools/blob/main/README.md"
+Repository = "https://github.com/NuMCMCTools/NuMCMCTools.git"
+"Issues" = "https://github.com/NuMCMCTools/NuMCMCTools/issues"
+
+[tool.setuptools]
+package-data = { "*" = ["*.root", "examples/*.root"] }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[project.scripts]
+plot_triangle = "examples.plot_triangle:run"
