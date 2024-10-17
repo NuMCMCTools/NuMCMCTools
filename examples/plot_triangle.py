@@ -114,12 +114,16 @@ def main(file: str, chain_name: str):
 def run():
   import argparse
   
-  parser = argparse.ArgumentParser()
+  # Get example root file, to be used if no inputs provided
+  script_dir = os.path.dirname(os.path.abspath(__file__))
+  root_file_path = os.path.join(script_dir, "testchaindata.root")
 
-  parser.add_argument('-f', '--file', dest="file", required=True, help="Input root file with the MCMC samples")
-  parser.add_argument('-c', '--chain', dest="chain", required=True, help="Chain TTree name in the MCMC file")
-
+  # Parse input arguments
+  parser = argparse.ArgumentParser(description="Create a triangle plot for all the neutrino oscillation parameters from MCMC samples.")
+  parser.add_argument('-f', '--file', dest="file", default=root_file_path, help="Input root file with the MCMC samples (default: example chain)")
+  parser.add_argument('-c', '--chain', dest="chain", default="mcmc", help="Chain TTree name in the MCMC file (default: \"mcmc\")")
   args = parser.parse_args()
+
   main(str(args.file), str(args.chain))
 
 if __name__ == "__main__":
