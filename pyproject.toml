@@ -55,7 +55,7 @@ Repository = "https://github.com/NuMCMCTools/NuMCMCTools.git"
 "Issues" = "https://github.com/NuMCMCTools/NuMCMCTools/issues"
 
 [tool.setuptools]
-package-data = {"rootfiles" = ["*root"]}
+package-data = { "*" = ["*.root", "examples/*.root"] }
 include-package-data = true
 
 [tool.setuptools.packages.find]
