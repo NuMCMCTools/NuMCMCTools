@@ -31,7 +31,7 @@ class PlotStack:
         :variables: Array of strings indicating the variables to be plotted.
                     Only 1D and 2D are currently supported. Custom variables can be declared
                     when through the mcmcsamples class
-        :priors: TBD
+        :priors: a list of priors in the Funtion:Variable format
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
                or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
