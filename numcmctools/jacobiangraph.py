@@ -42,7 +42,7 @@ class JacobianGraph:
         ),
 
         # Step Prior for a binary bias
-        'Step': lambda bias, boundary=0: lambda x: np.where(x >= boundary, bias, 1 - bias)
+        'Step': lambda bias, boundary=0: lambda x: np.where(x >= boundary, 1 - bias, bias)
     }
 
     def __init__(self):
