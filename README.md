@@ -49,10 +49,15 @@ splittings. For more information on the parameterization see the [PDG
 review on neutrino mixing](https://pdg.lbl.gov/2024/web/viewer.html?file=../reviews/rpp2024-rev-neutrino-mixing.pdf).
 
 Each parameter has some prior set by the original analyzers. The
-format of this information is a TList containing a TNamed for each branch, 
-which specifies the name of the branch and its prior. 
+format of this information is a TList containing a TNamed for each branch,
+which specifies the name of the branch and its prior.
 
-The priors are specified as either `Uniform` or `Gaussian(mean, sigma)`.
+The priors are specified as:
+1. `Uniform` 
+2. `Gaussian(mean, sigma)`
+4. `BimodalGaussian(mean1, sigma1, mean2, sigma2, bias)` where bias is in % and optional, default 50%.
+3. `Step(bias, boundary)` where bias is in % and boundary is optional, default 0
+
 There is then a further specification as to which variable the functional form
 applies to. For example, a specification of
 
@@ -176,12 +181,16 @@ sin(x)
 sin^2(x)
 cos(x)
 cos^2(x)
+cos^4(x)
 2x
 sin(2x)
 sin^2(2x)
 cos(2x)
 cos^2(2x)
+cos^4(2x)
 exp(-ix)
+exp(ix)
+abs(ix)
 ```
 
 For example, an input chain that has a prior set to be uniform in DeltaCP can
