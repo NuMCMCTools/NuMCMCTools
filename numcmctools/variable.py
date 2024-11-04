@@ -15,6 +15,7 @@ class Variable:
         """
         self.name = name
         self.function = function
+        self.has_wrapper = False
 
     def evaluate(self, data: Dict[str, np.ndarray]) -> np.ndarray:
         """
@@ -29,14 +30,6 @@ class Variable:
         func_code = self.function.__code__
         arg_names = func_code.co_varnames[:func_code.co_argcount]
 
-        # Get keyword args for the transform function
-        #kwargs = {}
-        #for arg in arg_names:
-        #    if arg in data:
-        #        kwargs[arg] = data[arg]
-        #    else:
-        #        raise KeyError(f"Missing required argument '{arg}' in the input data. Use MCMCSamples.add_variable!")
-
         kwargs = {arg : data[arg] for arg in arg_names if arg in data}
 
         # Call the transform function!
@@ -44,6 +37,14 @@ class Variable:
             return self.function(**kwargs)
         except Exception as e:
             raise RuntimeError(f"Error evaluating variable '{self.name}': {e}")
+
+    def wrap_function(self, wrapper: Callable[..., np.ndarray]):
+        """
+        Wrap the current function with a new function
+        """
+
+        self.function = wrapper
+        self.has_wrapper = True
 
     def __repr__(self):
        return f"Variable(name='{self.name}', function='{self.function}')"

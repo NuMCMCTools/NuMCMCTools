@@ -7,6 +7,8 @@ from .jacobiangraph import JacobianGraph
 
 logger = logging.getLogger(__name__)
 
+
+
 class MCMCSamples:
     compulsory_variables = [
             "DeltaCP",
@@ -49,13 +51,26 @@ class MCMCSamples:
         Check if the compulsory variables exist, fill the "variables" map and
         create attributes for them.
         """
+        # Helper to dynamically create identity functions with named parameters
+        def __create_identity_function(name):
+            """Creates a function like `def <name>(<name>): return <name>`."""
+            return lambda **kwargs: kwargs[name]
+
+        # DeltaCP wrapper function for the DeltaCP parameter
+        def __dcp_wrapper(DeltaCP):
+            return np.mod(DeltaCP, 2*np.pi)
 
         keys = self.tree.keys()
         for var in self.compulsory_variables:
             if var in keys:
-                # Create new variable
-                self.variables[var] = Variable(var, lambda **kwargs: kwargs[var])
-                logger.debug(f"Compulsory variable {var} found in the root file")
+               # Create new variable
+               self.variables[var] = Variable(var, __create_identity_function(var))
+
+               # Wrap dcp
+               if var is "DeltaCP":
+                   self.variables[var].wrap_function(__dcp_wrapper)
+
+               logger.debug(f"Compulsory variable {var} found in the root file")
             else:
                 raise ValueError(f"Compulsory variable '{var}' not found in the TTree.")
 
@@ -79,7 +94,7 @@ class MCMCSamples:
 
         # Explicit dcp in rads between -pi and pi
         def deltacp_pipi(DeltaCP):
-            dcp_mod = np.mod(DeltaCP, 2 * np.pi)
+            dcp_mod = deltacp_02pi(DeltaCP)
             return np.where(dcp_mod > np.pi, dcp_mod - 2*np.pi, dcp_mod)
             
         # Register the new variables

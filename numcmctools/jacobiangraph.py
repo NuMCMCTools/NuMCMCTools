@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class JacobianGraph:
 
     # Define symbolic variable
-    x = sp.Symbol('x')
+    x = sp.Symbol('x', real=True)
 
     # Pre-defined priors
     variables = {
@@ -26,12 +26,23 @@ class JacobianGraph:
             'cos^2(2x)': sp.cos(2*x)**2,
             'cos^4(2x)': sp.cos(2*x)**4,
             'exp(-ix)': sp.exp(-sp.I * x),
-            'exp(ix)': sp.exp(sp.I * x)
+            'exp(ix)': sp.exp(sp.I * x),
+            'abs(x)': sp.Abs(x)
             }
 
     # Possible distribution functions (not including Uniform)
     distribution_functions: Dict[str, Callable[..., Callable[[np.ndarray], np.ndarray]]] = {
-        'Gaussian': lambda mean, std: lambda x: (1 / (std * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x - mean) / std) ** 2)
+        # Prior for a Gaussian constraint
+        'Gaussian': lambda mean, std: lambda x: (1 / (std * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x - mean) / std) ** 2),
+
+        # Bimodal Gaussian Prior: Combines two Gaussians with optional weights
+        'BimodalGaussian': lambda mean1, std1, mean2, std2, bias=0.5: lambda x: (
+            bias * np.exp(-0.5 * ((x - mean1) / std1) ** 2) / (std1 * np.sqrt(2 * np.pi)) +
+            (1 - bias) * np.exp(-0.5 * ((x - mean2) / std2) ** 2) / (std2 * np.sqrt(2 * np.pi))
+        ),
+
+        # Step Prior for a binary bias
+        'Step': lambda bias, boundary=0: lambda x: np.where(x >= boundary, 1 - bias, bias)
     }
 
     def __init__(self):

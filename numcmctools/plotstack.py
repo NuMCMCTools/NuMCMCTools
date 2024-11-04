@@ -87,7 +87,11 @@ class PlotStack:
         for batch in tqdm(self.chain.tree.iterate(step_size=batchsize, library="np", entry_stop=n_steps), total=n_batches):
 
             for var in self.plotted_variables:
+                # Skip variables that are already in the batch, unless they
+                # have an extra wrapper
                 if var in batch:
+                    if self.chain.variables[var].has_wrapper:
+                        batch[var] = self.chain.variables[var].evaluate(batch)
                     continue
                 batch[var] = self.chain.variables[var].evaluate(batch)
 
