@@ -4,6 +4,7 @@ from numcmctools.variable import Variable
 from numcmctools.plotstack import PlotStack
 from numcmctools.plot import Plot 
 from numcmctools.jacobiangraph import JacobianGraph
+from numcmctools.constraints import ExternalConstraint
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s::%(levelname)s::%(name)s::%(lineno)s: - %(message)s')
 
