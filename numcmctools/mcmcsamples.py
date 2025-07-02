@@ -1,9 +1,10 @@
 import uproot
 import numpy as np
 import logging, sys
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 from .variable import Variable
 from .jacobiangraph import JacobianGraph
+from .constraints import ExternalConstraint
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ class MCMCSamples:
         # Get self.variables
         self.variables = {}
         self.variable_priors = {}
+        self.constraints = {}
         self.__check_and_extract_variables()
         # Get self.priors
         self.__check_and_extract_priors()
@@ -116,6 +118,31 @@ class MCMCSamples:
            raise ValueError(f"Variable '{name}' is already defined!")
 
         self.variables[name] = Variable(name, function)
+
+    def add_constraint(self, name: str,
+                       constraint: ExternalConstraint,
+                       is_inverted: bool = True,
+                       is_normal: bool = True):
+        """
+        Add an external constraint to the MCMCSamples object.
+
+        :param name: Unique name of the constraint.
+        :param constraint: An instance of ExternalConstraint.
+        :param is_inverted: If the constraint for the inverted ordering.
+        :param is_normal: If the constraint for the normal ordering.
+        """
+        if name in self.constraints:
+            raise ValueError(f"Constraint named {name} already exists!")
+
+        if not isinstance(constraint, ExternalConstraint):
+            raise TypeError("Constraint must be an instance of ExternalConstraint")
+        
+        if not is_inverted and not is_normal:
+            raise ValueError("At least one of is_inverted or is_normal must be True")
+
+        self.constraints[name] = constraint
+        self.constraints[name].is_inverted = is_inverted
+        self.constraints[name].is_normal = is_normal
 
     def __check_and_extract_priors(self):
         """
