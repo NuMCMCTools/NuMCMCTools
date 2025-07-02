@@ -24,7 +24,7 @@ class PlotStack:
         self.plotted_variables = []
         self.plots = []
 
-    def add_plot(self,variables, priors, bins, axrange=None, mo_option=False):
+    def add_plot(self,variables, priors, constraints, bins, axrange=None, mo_option=False):
         """
         Add a plot to the stack
   
@@ -56,6 +56,15 @@ class PlotStack:
                 else:
                     logger.debug(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
                     plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], parsed_priors[var])
+        
+        # Add the constraints to the plotting function
+        plot_constraints = {}
+        for constraint in constraints:
+            if constraint not in self.chain.constraints:
+                raise TypeError(f"The constraint you supplied in plot, {constraint}, is not defined in the MCMCSamples chain")
+
+            logger.debug(f"Constraint for variable {constraint} supplied in plot: {variables}: {self.chain.constraints[constraint]}")
+            plot_constraints[constraint] = self.chain.constraints[constraint]
 
         # Crash if user supplied a non-existant variable
         for var in variables:
@@ -68,7 +77,7 @@ class PlotStack:
                 continue
             self.plotted_variables.append(var)
 
-        self.plots.append(Plot(variables, plot_jacobians, bins, axrange, mo_option))
+        self.plots.append(Plot(variables, plot_jacobians, plot_constraints, bins, axrange, mo_option))
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         """

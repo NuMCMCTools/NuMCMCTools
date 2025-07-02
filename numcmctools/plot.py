@@ -2,12 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 from .jacobiangraph import JacobianGraph
+from .constraints import ExternalConstraint
 from typing import Union, List
 
 logger = logging.getLogger(__name__)
 
 class Plot:
-    def __init__(self, variables, jacobians, bins, axrange=None, mo_option=False):
+    def __init__(self, variables, jacobians, constraints, bins, axrange=None, mo_option=False):
         """
         Initialise a Plot instance.
 
@@ -16,6 +17,8 @@ class Plot:
                     when through the mcmcsamples class
         :priors: A dictionary of jacobian transform functions (can be None for
                  each parameter if no transformations are needed)
+        :constraints: A dictionary of constraints to be applied to the plot
+                      in the form of ExternalConstraint objects
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
                or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
@@ -25,6 +28,7 @@ class Plot:
         """
         self.variables = variables
         self.jacobian_funcs = jacobians
+        self.constraints = constraints
         self.bins = bins
         self.axrange = axrange
         self.mo_option = mo_option
@@ -39,7 +43,7 @@ class Plot:
                 self.hist_no = np.zeros(np.shape(self.hist))
                 self.hist_io = np.zeros(np.shape(self.hist))
         elif(self.nvar==2):
-            self.hist, edgesx, edgesy = np.histogram2d([], [],self.bins, self.axrange, weights=[])
+            self.hist, edgesx, edgesy = np.histogram2d([], [], self.bins, self.axrange, weights=[])
             self.edges.append(edgesx)
             self.edges.append(edgesy)
             if self.mo_option:
@@ -66,6 +70,25 @@ class Plot:
                 continue
             # Apply the weight
             weights *= self.jacobian_funcs[var](data[var])
+        
+        # Apply the constraints
+        for constraint in self.constraints:
+            if not isinstance(self.constraints[constraint], ExternalConstraint):
+                raise TypeError(f"Constraint {constraint} is not an instance of ExternalConstraint")
+            
+            if not self.constraints[constraint].is_inverted and not self.constraints[constraint].is_normal:
+                raise ValueError(f"Constraint {constraint} must be either inverted or normal")
+            
+            weights_tmp = self.constraints[constraint](data)
+            def_weight = 1.0
+
+            #if self.constraints[constraint].is_inverted and self.constraints[constraint].is_normal:
+            #    def_weight = 1.0
+            
+            if self.constraints[constraint].is_inverted:
+                weights *= np.where(np.less_equal(data["Deltam2_32"],0.0), weights_tmp, def_weight)
+            if self.constraints[constraint].is_normal:
+                weights *= np.where(np.greater_equal(data["Deltam2_32"],0.0), weights_tmp, def_weight)
         
         if not self.finalized:
             if(self.nvar==1):
