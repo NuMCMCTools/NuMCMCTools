@@ -90,6 +90,28 @@ class Plot:
                     self.hist += hist
         else:
             logger.warn("histogram was finalized already! No filling allowed!")
+            return
+
+        def throw_error():
+            """
+            Throws an error if the filled histograms are empty
+            """
+            for varidx, var in enumerate(self.variables):
+                min = np.min(data[var])
+                max = np.max(data[var])
+
+                ax = self.axrange if self.nvar == 1 else self.axrange[varidx]
+
+                if not (ax[0] <= min <= ax[1]) or not (ax[0] <= max <= ax[1]):
+                    raise ValueError(f"Variable {var} has posterior max and max values of {min} and {max}, "
+                                     f"outside of the plotting range {ax} for plot with variables {self.variables}.")
+        
+        if self.mo_option:
+            if np.sum(self.hist_no) == 0 or np.sum(self.hist_io) == 0:
+                throw_error()
+        else:
+            if np.sum(self.hist) == 0:
+                throw_error()
 
     def finalize_histogram(self):
         """
