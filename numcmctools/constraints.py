@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class ExternalConstraint:
     _INTERPOLATORS = ['regular', 'linear']
 
-    def __init__(self, root_obj, interpolator_type: str ='regular'):
+    def __init__(self, root_obj, variables, interpolator_type: str ='regular'):
         type_name = type(root_obj).__name__
         logger.debug(f"Initializing ExternalConstraint with input root object type: {type_name}")
         if "THnT" in type_name: 
@@ -25,6 +25,8 @@ class ExternalConstraint:
         self._init_interpolator(interpolator_type)
         logger.debug(f"ExternalConstraint object initialized with {self.dimensions} dimensions "\
                     f"and {self.interpolate.__class__.__name__} interpolation.")
+
+        self.variables = variables
     
     def _init_thnd(self, thnd):
         # Throw if the number of dimensions is greater than 2
@@ -54,11 +56,45 @@ class ExternalConstraint:
         self.points = np.asarray(tuple(np.linspace(m, mx, s) for m, mx, s in zip(mins, maxs, shape)))
         logger.debug(f"Points shape: {self.points.shape}, z data shape: {self.data.shape}")
     
+    def _is_increasing(self, arr):
+        return np.all(np.diff(arr) >= 0)
+        
     def _init_tgraph2d(self, tgraph2d):
+        #print(tgraph2d.all_members)
+        #print(len(tgraph2d.member("fX")))
+
+        #self.dimensions = 2
+
+        #print(f"Gettng the points")
+        #self.points = np.array([tgraph2d.member("fX"), tgraph2d.member("fY")])
+
+        #print(tgraph2d.member("fY")[:105])
+
+        #x_increasing = self._is_increasing(tgraph2d.member('fX'))
+        #y_increasing = self._is_increasing(tgraph2d.member('fY'))
+        
+        #if x_increasing and y_increasing:
+        #    raise ValueError("The X and Y axis of the TGraph2D are not increasing.")
+
+        #if x_increasing:
+        #    # Find the first point where the X axis is not increasing
+        #    first_decreasing_index = np.where(np.diff(tgraph2d.member('fX')))[0] + 1
+        #    logger.debug(f"X axis is increasing until index {first_decreasing_index[0]}")
+
+
+        #print(f"Getting the data")
+        #self.data = np.array(tgraph2d.member("fZ"))
+        #self.data = self.data.reshape(int(np.sqrt(len(self.data))), int(np.sqrt(len(self.data))))
+
+
+        #logger.debug(f"Points shape: {self.points.shape}, z data shape: {self.data.shape}")
+        # (2, 10000), (10000,)
+
         raise NotImplementedError("TGraph2D support is not implemented yet.")
     
     def _init_interpolator(self, interpolator_type: str):
 
+        logger.debug(f"Initialising the interpolator of type: {interpolator_type}")
         if interpolator_type == 'linear':
             # Linear interpolation requires a meshgrid of points for the Delaunay triangulation
             self.points = np.column_stack([p.ravel() for p in np.meshgrid(*self.points)])
@@ -75,6 +111,16 @@ class ExternalConstraint:
                                                        fill_value=0.0)
         
         logger.debug(f"Interpolator initialized: {self.interpolate.__class__.__name__}")
+    
+    def __call__(self, data):
+        for var in self.variables:
+            if var not in data:
+                raise KeyError(f"Variable '{var}' not found in the provided data. Available: {list(data.keys())}")
+        
+        # Extract the values for the variables
+        values = np.asarray([data[var] for var in self.variables])
+        return self.interpolate(values.T)
+        
 
     def __repr__(self):
         return f"ExternalConstraint(interp_type={self.interpolate.__class__.__name__}, " \
