@@ -80,15 +80,13 @@ class Plot:
                 raise ValueError(f"Constraint {constraint} must be either inverted or normal")
             
             weights_tmp = self.constraints[constraint](data)
-            def_weight = 1.0
 
-            #if self.constraints[constraint].is_inverted and self.constraints[constraint].is_normal:
-            #    def_weight = 1.0
-            
-            if self.constraints[constraint].is_inverted:
-                weights *= np.where(np.less_equal(data["Deltam2_32"],0.0), weights_tmp, def_weight)
-            if self.constraints[constraint].is_normal:
-                weights *= np.where(np.greater_equal(data["Deltam2_32"],0.0), weights_tmp, def_weight)
+            if self.constraints[constraint].is_inverted and self.constraints[constraint].is_normal:
+                weights *= weights_tmp
+            elif self.constraints[constraint].is_inverted:
+                weights *= np.where(np.less_equal(data["Deltam2_32"],0.0), weights_tmp, 1.0)
+            elif self.constraints[constraint].is_normal:
+                weights *= np.where(np.greater_equal(data["Deltam2_32"],0.0), weights_tmp, 1.0)
         
         if not self.finalized:
             if(self.nvar==1):
