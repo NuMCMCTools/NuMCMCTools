@@ -56,41 +56,31 @@ class ExternalConstraint:
         self.points = np.asarray(tuple(np.linspace(m, mx, s) for m, mx, s in zip(mins, maxs, shape)))
         logger.debug(f"Points shape: {self.points.shape}, z data shape: {self.data.shape}")
     
-    def _is_increasing(self, arr):
-        return np.all(np.diff(arr) >= 0)
-        
     def _init_tgraph2d(self, tgraph2d):
-        #print(tgraph2d.all_members)
-        #print(len(tgraph2d.member("fX")))
+        self.dimensions = 2
 
-        #self.dimensions = 2
-
-        #print(f"Gettng the points")
-        #self.points = np.array([tgraph2d.member("fX"), tgraph2d.member("fY")])
-
-        #print(tgraph2d.member("fY")[:105])
-
-        #x_increasing = self._is_increasing(tgraph2d.member('fX'))
-        #y_increasing = self._is_increasing(tgraph2d.member('fY'))
+        x_increasing = not np.all(np.diff(tgraph2d.member('fX')) >= 0)
+        y_increasing = not np.all(np.diff(tgraph2d.member('fY')) >= 0)
         
-        #if x_increasing and y_increasing:
-        #    raise ValueError("The X and Y axis of the TGraph2D are not increasing.")
+        if x_increasing and y_increasing:
+            raise ValueError("The X and Y axis of the TGraph2D are not increasing.")
 
-        #if x_increasing:
-        #    # Find the first point where the X axis is not increasing
-        #    first_decreasing_index = np.where(np.diff(tgraph2d.member('fX')))[0] + 1
-        #    logger.debug(f"X axis is increasing until index {first_decreasing_index[0]}")
+        points = []
+        for axis, is_increasing in zip(['fX', 'fY'], [x_increasing, y_increasing]):
+            print(f"Dimension: {axis}, Increasing: {is_increasing}")
 
+            if is_increasing:
+                npoints = np.where(np.diff(tgraph2d.member(axis)) < 0)[0] + 1
+                points.append(tgraph2d.member(axis)[0:npoints[0]])
+            else:
+                npoints = np.where(np.diff(tgraph2d.member(axis)) > 0)[0] + 1
+                points.append(tgraph2d.member(axis)[::npoints[0]])
 
-        #print(f"Getting the data")
-        #self.data = np.array(tgraph2d.member("fZ"))
-        #self.data = self.data.reshape(int(np.sqrt(len(self.data))), int(np.sqrt(len(self.data))))
+        self.data = np.array(tgraph2d.member("fZ"))
+        self.data = self.data.reshape(int(np.sqrt(len(self.data))), int(np.sqrt(len(self.data))))
+        self.points = np.asarray(points)
 
-
-        #logger.debug(f"Points shape: {self.points.shape}, z data shape: {self.data.shape}")
-        # (2, 10000), (10000,)
-
-        raise NotImplementedError("TGraph2D support is not implemented yet.")
+        logger.debug(f"Points shape: {self.points.shape}, z data shape: {self.data.shape}")
     
     def _init_interpolator(self, interpolator_type: str):
 
