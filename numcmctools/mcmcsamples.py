@@ -7,8 +7,6 @@ from .jacobiangraph import JacobianGraph
 
 logger = logging.getLogger(__name__)
 
-
-
 class MCMCSamples:
     compulsory_variables = [
             "DeltaCP",
@@ -135,7 +133,7 @@ class MCMCSamples:
                 logger.debug(f"Prior for {name} found, with format: {prior}")
             else:
                 # Don't try to fill prior for variable that does not exist!
-                raise ValueError("Prior defined for {name}, but variable {name} does not exist!")
+                raise ValueError(f"Prior defined for {name}, but variable {name} does not exist!")
 
         # Parse the compulsary variables into format understood internally
         self.variable_priors = JacobianGraph.parse_priors(priors, self.compulsory_variables)
