@@ -29,9 +29,12 @@ class PlotStack:
         Add a plot to the stack
   
         :variables: Array of strings indicating the variables to be plotted.
-                    Only 1D and 2D are currently supported. Custom variables can be declared
-                    when through the mcmcsamples class
+                    Only 1D and 2D are currently supported. Custom variables can
+                    be declared when through the mcmcsamples class
         :priors: a list of priors in the Funtion:Variable format
+        :constraints: A list of strings with the unique names of the constraints
+                      to be applied. If None, the constraints defined in the
+                      MCMCSamples chain will be used.
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
                or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
@@ -59,6 +62,16 @@ class PlotStack:
         
         # Add the constraints to the plotting function
         plot_constraints = {}
+
+        # First check if the user supplied any constraints. If not, check if the
+        # chain has any constraints to be applied by default
+        if constraints == None:
+            constraints = []
+            for constraint in self.chain.constraints:
+                print(f"Checking constraint {constraint} in chain")
+                if self.chain.constraints[constraint].applied_default:
+                    constraints.append(constraint)
+
         for constraint in constraints:
             if constraint not in self.chain.constraints:
                 raise TypeError(f"The constraint you supplied in plot, {constraint}, is not defined in the MCMCSamples chain")

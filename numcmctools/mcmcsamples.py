@@ -163,11 +163,12 @@ class MCMCSamples:
                 vars_for_constraint.append(var)
 
             # Add the constraint
-            self.add_constraint(name,
-                                ExternalConstraint(constraints[obj_name], 
-                                                   vars_for_constraint),
-                                is_inverted=("IO" in mass_ordering),
-                                is_normal=("NO" in mass_ordering))
+            self._add_default_constraint(name,
+                                         ExternalConstraint(constraints[obj_name], 
+                                                         vars_for_constraint),
+                                         is_inverted=("IO" in mass_ordering),
+                                         is_normal=("NO" in mass_ordering),
+                                         is_applied_default=applied_default)
 
     def add_variable(self, name: str, function: Callable[..., np.ndarray]):
         """
@@ -185,6 +186,17 @@ class MCMCSamples:
            raise ValueError(f"Variable '{name}' is already defined!")
 
         self.variables[name] = Variable(name, function)
+
+    def _add_default_constraint(self, name: str,
+                                constraint: ExternalConstraint,
+                                is_inverted: bool = True,
+                                is_normal: bool = True,
+                                is_applied_default: bool = True):
+        self.add_constraint(name, constraint,
+                            is_inverted=is_inverted,
+                            is_normal=is_normal)
+        
+        self.constraints[name].applied_default = is_applied_default
 
     def add_constraint(self, name: str,
                        constraint: ExternalConstraint,
@@ -212,6 +224,7 @@ class MCMCSamples:
         self.constraints[name] = constraint
         self.constraints[name].is_inverted = is_inverted
         self.constraints[name].is_normal = is_normal
+        self.constraints[name].applied_default = False
 
     def __check_and_extract_priors(self):
         """
