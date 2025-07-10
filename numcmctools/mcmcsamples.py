@@ -143,7 +143,7 @@ class MCMCSamples:
             logger.warning("No \"constraints\" TDirectionaryFile found in the ROOT file. Skipping constraints extraction.")
             return
 
-        logger.warning("\"Constraints\" TDirectionaryFile found in the ROOT file. Reading")
+        logger.debug("The \"constraints\" TDirectionaryFile found in the ROOT file. Reading")
 
         # Iterate over objects in the constraints TDirectory
         for obj_name in constraints.keys():
@@ -197,6 +197,14 @@ class MCMCSamples:
                             is_normal=is_normal)
         
         self.constraints[name].applied_default = is_applied_default
+        if is_applied_default:
+            if is_inverted and is_normal:
+                mo = "Both Mass Orderings"
+            else:
+                mo = "Inverted Mass Ordering" if is_inverted else "Normal Mass Ordering" if is_normal else ''
+
+            logger.info(f"Default constraint '{name}' added for variables {constraint.variables} and {mo}. "
+                        f"Applied by default if the 'constraint' in add_plot function is 'None' rather than an empty list.")
 
     def add_constraint(self, name: str,
                        constraint: ExternalConstraint,
