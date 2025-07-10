@@ -32,6 +32,7 @@ the package and add your own macros that include the `numcmcmtools` folder.
 
 ## File Format
 
+### MCMC samples
 The expected input format for this code is a ROOT file containing at
 least one TTree. The tree can have any name. Inside the tree, there
 will be at least six branches called:
@@ -48,9 +49,10 @@ first four are the PMNS angles, and the last two are the mass
 splittings. For more information on the parameterization see the [PDG
 review on neutrino mixing](https://pdg.lbl.gov/2024/web/viewer.html?file=../reviews/rpp2024-rev-neutrino-mixing.pdf).
 
-Each parameter has some prior set by the original analyzers. The
-format of this information is a TList containing a TNamed for each branch,
-which specifies the name of the branch and its prior.
+### Priors
+Each parameter has some prior set by the original analyzers. The format of this
+information is a `TList` object named `priors`, containing a `TNamed` for each
+branch, which specifies the name of the branch and its prior.
 
 The priors are specified as:
 1. `Uniform` 
@@ -65,8 +67,25 @@ applies to. For example, a specification of
 
 indicates that the prior for Theta23 is uniform in $\sin^2\theta_{23}$.
 
+### Constraints
+
+Optionally, file can contain 1D or 2D constraints to be applied by default to the plots when the `constraints` object input to `add_plot` function is set to `None`. For this, there needs to be a `TDirectoryFile` object named `constraints`. Each constraint object inside that directory can be either `TGraph2D` or `THnD`. The object must have a name in a format:
+
+1. unique name
+2. parameter names separated by colon, e.g. `sin^2(2Theta13):abs(Deltam2_32)`
+3. Optional string "NO" for constraint only applied to Normal Mass Ordering, IO for the Inverted mass ordering, or none for a constraint applied across both Mass Orderings.
+4. 1 if the constraint should be applied automatically, or 0 if not.
+
+Example:
+1. `DayaBay2D_2024_IO:sin^2(2Theta13):abs(Deltam2_32):IO:1` for a 2D constraint automatically applied in the Inverted Mass Ordering
+1. `some_constraint_from_theory:sin^2(2Theta13):sin^2(Theta23):1` for a 2D constraint automatically applied across both mass orderings.
+
+### Other
+
+
 The file additionally contains a citation to the original analysis that
-produced the chain.
+produced the chain. The citation must be inside of a `TObjString` object named
+`citation`.
 
 There may be additional information contained in the file; please see
 the data release from the particular analysis for more detail.
