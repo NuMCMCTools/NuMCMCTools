@@ -45,7 +45,8 @@ dependencies = [
   "matplotlib",
   "sympy",
   "tqdm",
-  "uproot"
+  "uproot",
+  "scipy"
 ]
 
 [project.urls]
