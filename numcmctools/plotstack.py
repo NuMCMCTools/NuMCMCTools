@@ -66,6 +66,13 @@ class PlotStack:
             logger.debug(f"Constraint for variable {constraint} supplied in plot: {variables}: {self.chain.constraints[constraint]}")
             plot_constraints[constraint] = self.chain.constraints[constraint]
 
+            # Make sure we add the variables needed for the constraints to the plotted variables
+            # TODO Need to consolidate this with jacobians etc...
+            for var in self.chain.constraints[constraint].variables:
+                if var not in self.chain.variables:
+                    raise TypeError(f"The variable {var} in constraint {constraint} is not defined in the MCMCSamples chain")
+                self.plotted_variables.append(var)
+
         # Crash if user supplied a non-existant variable
         for var in variables:
             if var not in self.chain.variables:
@@ -102,6 +109,7 @@ class PlotStack:
                     if self.chain.variables[var].has_wrapper:
                         batch[var] = self.chain.variables[var].evaluate(batch)
                     continue
+                print(f"Evaluating variable {var} in the batch batch keys: {batch.keys()}")
                 batch[var] = self.chain.variables[var].evaluate(batch)
 
             for plot in self.plots:
