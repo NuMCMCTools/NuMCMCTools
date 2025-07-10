@@ -68,7 +68,6 @@ class PlotStack:
         if constraints == None:
             constraints = []
             for constraint in self.chain.constraints:
-                print(f"Checking constraint {constraint} in chain")
                 if self.chain.constraints[constraint].applied_default:
                     constraints.append(constraint)
 
@@ -122,7 +121,6 @@ class PlotStack:
                     if self.chain.variables[var].has_wrapper:
                         batch[var] = self.chain.variables[var].evaluate(batch)
                     continue
-                print(f"Evaluating variable {var} in the batch batch keys: {batch.keys()}")
                 batch[var] = self.chain.variables[var].evaluate(batch)
 
             for plot in self.plots:

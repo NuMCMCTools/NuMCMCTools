@@ -67,8 +67,6 @@ class ExternalConstraint:
 
         points = []
         for axis, is_increasing in zip(['fX', 'fY'], [x_increasing, y_increasing]):
-            print(f"Dimension: {axis}, Increasing: {is_increasing}")
-
             if is_increasing:
                 npoints = np.where(np.diff(tgraph2d.member(axis)) < 0)[0] + 1
                 points.append(tgraph2d.member(axis)[0:npoints[0]])
