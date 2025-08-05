@@ -104,7 +104,7 @@ class MCMCSamples:
         self.variables["DeltaCP_02pi"] = Variable("DeltaCP_02pi", deltacp_02pi)
         self.variables["DeltaCP_pipi"] = Variable("DeltaCP_pipi", deltacp_pipi)
     
-    def __parse_constraint_name(self, name: str):
+    def __parse_constraint_name(self, title: str):
         """
         Parse the constraint name to extract the variable names, mass ordering,
         and whether the default is applied.
@@ -114,24 +114,22 @@ class MCMCSamples:
         :param name: The name of the constraint.
         :return: Tuple containing (name, vars, mass_ordering, applied_default).
         """
-        parts = name.split(":")
-        if len(parts) < 3 or len(parts) > 5:
-            raise ValueError(f"Invalid constraint name format: {name}. Expected at least 3 parts separated by ':'.")
+        parts = title.split(":")
+        if len(parts) < 2 or len(parts) > 4:
+            raise ValueError(f"Invalid constraint name format: {title}. Expected at least 2 parts separated by ':'.")
 
         # Extract the unique name and variables
-        unique_name = parts[0]
         is_applied_default = int(parts[-1])
 
         # TODO need extra checks to see how many parts there are, and if user provided e.g. wrong string for MO
         if parts[-2] in ["NO", "IO"]:
             mass_ordering = parts[-2]
-            vars = parts[1:-2]
+            vars = parts[0:-2]
         else:
             mass_ordering = "NOIO"
-            vars = parts[1:-1]
+            vars = parts[0:-1]
         
-        return unique_name, vars, mass_ordering, is_applied_default
-
+        return vars, mass_ordering, is_applied_default
 
     def __check_and_extract_constraints(self):
         # Open the object with the constraints
@@ -140,17 +138,25 @@ class MCMCSamples:
         except uproot.exceptions.KeyInFileError:
             logger.warning("No \"constraints\" TDirectionaryFile found in the ROOT file. Skipping constraints extraction.")
             return
+        
+        try:
+            constraint_name_list = uproot.open(f"{self.filepath}:constraint_names")
+        except uproot.exceptions.KeyInFileError:
+            logger.warning("No \"constraint_names\" TList found in the ROOT file. Skipping constraints extraction.")
+            return
 
-        logger.debug("The \"constraints\" TDirectionaryFile found in the ROOT file. Reading")
-
-        # Iterate over objects in the constraints TDirectory
+        # Create dictionary of constraint names to the constraint metadata
+        constraint_name_dict = {c.member('fName'): c.member('fTitle') for c in constraint_name_list}
+        
         for obj_name in constraints.keys():
             # Remove the ;1 if exists
             obj_name = obj_name[:obj_name.rindex(";")]
+            if obj_name not in constraint_name_dict:
+                raise ValueError(f"Constraint '{obj_name}' not found in the constraints TDirectory. Available: {list(constraint_name_dict.keys())}")
 
             # Parse the constraint name to extract the unique name, variables,
             # mass ordering, and whether the constraint should be applied by default
-            name, vars, mass_ordering, applied_default = self.__parse_constraint_name(obj_name)
+            vars, mass_ordering, applied_default = self.__parse_constraint_name(constraint_name_dict[obj_name])
 
             # Add the variable if it does not exist
             vars_for_constraint:List[str] = []
@@ -161,7 +167,7 @@ class MCMCSamples:
                 vars_for_constraint.append(var)
 
             # Add the constraint
-            self._add_default_constraint(name,
+            self._add_default_constraint(obj_name,
                                          ExternalConstraint(constraints[obj_name], 
                                                          vars_for_constraint),
                                          is_inverted=("IO" in mass_ordering),
