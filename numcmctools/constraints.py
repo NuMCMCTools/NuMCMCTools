@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class ExternalConstraint:
     _INTERPOLATORS = ['regular', 'linear']
 
-    def __init__(self, root_obj, variables, interpolator_type: str ='regular'):
+    def __init__(self, root_obj, variables, interpolator_type: str ='linear'):
         type_name = type(root_obj).__name__
         logger.debug(f"Initializing ExternalConstraint with input root object type: {type_name}")
         if "THnT" in type_name: 
