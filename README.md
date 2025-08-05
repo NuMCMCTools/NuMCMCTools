@@ -69,16 +69,18 @@ indicates that the prior for Theta23 is uniform in $\sin^2\theta_{23}$.
 
 ### Constraints
 
-Optionally, file can contain 1D or 2D constraints to be applied by default to the plots when the `constraints` object input to `add_plot` function is set to `None`. For this, there needs to be a `TDirectoryFile` object named `constraints`. Each constraint object inside that directory can be either `TGraph2D` or `THnD`. The object must have a name in a format:
+Optionally, file can contain 1D or 2D constraints to be applied by default to the plots when the `constraints` object input to `add_plot` function is set to `None`. For this, there needs to be a `TDirectoryFile` object named `constraints`. Each constraint object inside that directory can be either `TGraph2D` or `THnD`. Additionally, a `TList` named `container_names` needs to be attached, with a detailed metadata for each external constraint. The `TNamed` entry inside of `TList` must be in a format:
 
-1. unique name
-2. parameter names separated by colon, e.g. `sin^2(2Theta13):abs(Deltam2_32)`
-3. Optional string "NO" for constraint only applied to Normal Mass Ordering, IO for the Inverted mass ordering, or none for a constraint applied across both Mass Orderings.
-4. 1 if the constraint should be applied automatically, or 0 if not.
+1. Name: unique name that matches `TNamed` inside of `TList`
+2. Title: parameter names separated by colon, e.g. `sin^2(2Theta13):abs(Deltam2_32)`
+3. Title: Optional string "NO" for constraint only applied to Normal Mass Ordering, IO for the Inverted mass ordering, or none for a constraint applied across both Mass Orderings.
+4. Title: 1 if the constraint should be applied automatically, or 0 if not.
 
 Example:
-1. `DayaBay2D_2024_IO:sin^2(2Theta13):abs(Deltam2_32):IO:1` for a 2D constraint automatically applied in the Inverted Mass Ordering
-1. `some_constraint_from_theory:sin^2(2Theta13):sin^2(Theta23):1` for a 2D constraint automatically applied across both mass orderings.
+1. `DayaBay2D_2024_IO` `sin^2(2Theta13):abs(Deltam2_32):IO:1` for a 2D constraint automatically applied in the Inverted Mass Ordering
+2. `some_constraint_from_theory` `sin^2(2Theta13):sin^2(Theta23):1` for a 2D constraint automatically applied across both mass orderings.
+
+The unique names in the `TList` must match the name of the `THnD` or `TGraph2D` inside of the `constraints` `TDirectory`. Example provided in `examples/testchaindata.root`
 
 ### Other
 
