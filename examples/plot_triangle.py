@@ -4,7 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from numcmctools import PlotStack, MCMCSamples, ExternalConstraint
+from numcmctools import PlotStack, MCMCSamples, EmpiricalPrior
 
 # Define custom variable: ssth23
 def ssth23(Theta23) ->np.ndarray:
@@ -47,10 +47,10 @@ def main(file: str, chain_name: str):
   samples.add_variable("AbsDm32", absdm32)
   samples.add_variable("Dm21", scaleddm21)
 
-  # Constraints set to None means the default constraints from the MCMCSamples object will be used
-  # If empty list is provided, no constraints will be applied.
-  # If a list of unique external constraints is provided, those will be used.
-  constraints = None
+  # empirical_priors set to None means the default empirical_priors from the MCMCSamples object will be used
+  # If empty list is provided, no empirical priors will be applied.
+  # If a list of unique external empirical priors is provided, those will be used.
+  empirical_priors = None
 
   # Add all the 1D and 2D plots we want into the stack
   stack = PlotStack(samples)
@@ -59,9 +59,9 @@ def main(file: str, chain_name: str):
       if i < j:
         continue
       if i == j:
-        stack.add_plot([variable_names[i]], priors, constraints, bins[i], ranges[i], True)
+        stack.add_plot([variable_names[i]], priors, empirical_priors, bins[i], ranges[i], True)
       else:
-        stack.add_plot([variable_names[j], variable_names[i]], priors, constraints, [bins[j], bins[i]], [ranges[j], ranges[i]], True)
+        stack.add_plot([variable_names[j], variable_names[i]], priors, empirical_priors, [bins[j], bins[i]], [ranges[j], ranges[i]], True)
 
   # Fill the plots
   stack.fill_plots()

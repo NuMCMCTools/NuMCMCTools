@@ -50,21 +50,21 @@ priors_expdcp = ["Uniform:sin(DeltaCP)",
                  "Gaussian(0.55, 0.01):sin^2(Theta23)"]
 
 # Applies default constrints from the MCMCSamples object
-# If empty list is provided, no constraints will be applied.
-constraints = None
+# If empty list is provided, no empirical_priors will be applied.
+empirical_priors = None
 
 # 1D plots
-stack.add_plot(["AbsUe3"], priors_expdcp, constraints, 50, [0.1, 0.25], True)
-stack.add_plot(["JarlskogInvariant"], priors_sindcp, constraints, 50, [-0.05, 0.05], True)
-stack.add_plot(["SinSqTheta23"], priors, constraints, 50, [0.35, 0.65])
-stack.add_plot(["SinSqTheta23"], priors, constraints, 50, [0.35, 0.65],True)
-stack.add_plot(["AbsDm2_32"],priors, constraints,50,[2.2E-3,2.8E-3],True)
+stack.add_plot(["AbsUe3"], priors_expdcp, empirical_priors, 50, [0.1, 0.25], True)
+stack.add_plot(["JarlskogInvariant"], priors_sindcp, empirical_priors, 50, [-0.05, 0.05], True)
+stack.add_plot(["SinSqTheta23"], priors, empirical_priors, 50, [0.35, 0.65])
+stack.add_plot(["SinSqTheta23"], priors, empirical_priors, 50, [0.35, 0.65],True)
+stack.add_plot(["AbsDm2_32"],priors, empirical_priors,50,[2.2E-3,2.8E-3],True)
 
 # 2D plots
-stack.add_plot(["JarlskogInvariant", "AbsUe3"], priors_expdcp, constraints, [50, 50], [[-0.05, 0.05], [0.1, 0.25]],True)
-stack.add_plot(["SinSqTheta23", "SinSq2Theta13"], priors, constraints, [50, 50], [[0.35, 0.65], [0.04, 0.15]])
-stack.add_plot(["JarlskogInvariant", "AbsSinDeltaCP"],priors_sindcp, constraints, [50, 50], [[-0.05, 0.05], [0, 1]])
-stack.add_plot(["SinSqTheta23", "AbsDm2_32"],priors, constraints, [50, 50], [[0.35, 0.65], [2.2E-3,2.8E-3]], True)
+stack.add_plot(["JarlskogInvariant", "AbsUe3"], priors_expdcp, empirical_priors, [50, 50], [[-0.05, 0.05], [0.1, 0.25]],True)
+stack.add_plot(["SinSqTheta23", "SinSq2Theta13"], priors, empirical_priors, [50, 50], [[0.35, 0.65], [0.04, 0.15]])
+stack.add_plot(["JarlskogInvariant", "AbsSinDeltaCP"],priors_sindcp, empirical_priors, [50, 50], [[-0.05, 0.05], [0, 1]])
+stack.add_plot(["SinSqTheta23", "AbsDm2_32"],priors, empirical_priors, [50, 50], [[0.35, 0.65], [2.2E-3,2.8E-3]], True)
 
 # Fill the plots
 stack.fill_plots()
