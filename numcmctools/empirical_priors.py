@@ -6,12 +6,12 @@ from types import FunctionType
 
 logger = logging.getLogger(__name__)
 
-class ExternalConstraint:
+class EmpiricalPrior:
     _INTERPOLATORS = ['regular', 'linear']
 
     def __init__(self, root_obj, variables, interpolator_type: str ='linear'):
         type_name = type(root_obj).__name__
-        logger.debug(f"Initializing ExternalConstraint with input root object type: {type_name}")
+        logger.debug(f"Initializing EmpiricalPrior with input root object type: {type_name}")
         if "THnT" in type_name: 
             self._init_thnd(root_obj)
         elif "TGraph2D" in type_name:
@@ -23,7 +23,7 @@ class ExternalConstraint:
             raise ValueError(f"Invalid interpolator type. Choose from {self._INTERPOLATORS}. Got {interpolator_type}.") 
         
         self._init_interpolator(interpolator_type)
-        logger.debug(f"ExternalConstraint object initialized with {self.dimensions} dimensions "\
+        logger.debug(f"EmpiricalPrior object initialized with {self.dimensions} dimensions "\
                     f"and {self.interpolate.__class__.__name__} interpolation.")
 
         self.variables = variables
@@ -32,8 +32,8 @@ class ExternalConstraint:
         # Throw if the number of dimensions is greater than 2
         self.dimensions: int = thnd.member("fNdimensions")
         if self.dimensions > 2:
-            raise ValueError("External constraints with more than 2 dimensions are not supported yet.")
-        logger.debug(f"Initializing THnD-constraint with {self.dimensions} dimensions.")
+            raise ValueError("External empirical prior with more than 2 dimensions are not supported yet.")
+        logger.debug(f"Initializing THnD-empirical prior with {self.dimensions} dimensions.")
 
         # Get the axes and their properties
         axes =  thnd.member(f"fAxes")
@@ -111,5 +111,5 @@ class ExternalConstraint:
         
 
     def __repr__(self):
-        return f"ExternalConstraint(interp_type={self.interpolate.__class__.__name__}, " \
+        return f"EmpiricalPrior(interp_type={self.interpolate.__class__.__name__}, " \
                f"dims={self.dimensions})"
