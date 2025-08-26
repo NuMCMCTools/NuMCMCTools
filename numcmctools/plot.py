@@ -2,23 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 from .jacobiangraph import JacobianGraph
-from .constraints import ExternalConstraint
+from .empirical_priors import EmpiricalPrior
 from typing import Union, List
 
 logger = logging.getLogger(__name__)
 
 class Plot:
-    def __init__(self, variables, jacobians, constraints, bins, axrange=None, mo_option=False):
+    def __init__(self, variables, jacobians, empirical_priors, bins, axrange=None, mo_option=False):
         """
         Initialise a Plot instance.
 
         :variables: Array of strings indicating the variables to be plotted.
                     Only 1D and 2D are currently supported. Custom variables can be declared
                     when through the mcmcsamples class
-        :priors: A dictionary of jacobian transform functions (can be None for
+        :jacobians: A dictionary of jacobian transform functions (can be None for
                  each parameter if no transformations are needed)
-        :constraints: A dictionary of constraints to be applied to the plot
-                      in the form of ExternalConstraint objects
+        :empirical_priors: A dictionary of empirical_priors to be applied to the plot
+                      in the form of EmpiricalPriors objects
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
                or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
@@ -28,7 +28,7 @@ class Plot:
         """
         self.variables = variables
         self.jacobian_funcs = jacobians
-        self.constraints = constraints
+        self.empirical_priors = empirical_priors
         self.bins = bins
         self.axrange = axrange
         self.mo_option = mo_option
@@ -71,21 +71,21 @@ class Plot:
             # Apply the weight
             weights *= self.jacobian_funcs[var](data[var])
         
-        # Apply the constraints
-        for constraint in self.constraints:
-            if not isinstance(self.constraints[constraint], ExternalConstraint):
-                raise TypeError(f"Constraint {constraint} is not an instance of ExternalConstraint")
+        # Apply the empirical priors
+        for empirical_prior in self.empirical_priors:
+            if not isinstance(self.empirical_priors[empirical_prior], EmpiricalPrior):
+                raise TypeError(f"Empirical prior {empirical_prior} is not an instance of EmpiricalPrior")
             
-            if not self.constraints[constraint].is_inverted and not self.constraints[constraint].is_normal:
-                raise ValueError(f"Constraint {constraint} must be either inverted or normal")
+            if not self.empirical_priors[empirical_prior].is_inverted and not self.empirical_priors[empirical_prior].is_normal:
+                raise ValueError(f"Empirical prior {empirical_prior} must be either inverted and/or normal")
             
-            weights_tmp = self.constraints[constraint](data)
+            weights_tmp = self.empirical_priors[empirical_prior](data)
 
-            if self.constraints[constraint].is_inverted and self.constraints[constraint].is_normal:
+            if self.empirical_priors[empirical_prior].is_inverted and self.empirical_priors[empirical_prior].is_normal:
                 weights *= weights_tmp
-            elif self.constraints[constraint].is_inverted:
+            elif self.empirical_priors[empirical_prior].is_inverted:
                 weights *= np.where(np.less_equal(data["Deltam2_32"],0.0), weights_tmp, 1.0)
-            elif self.constraints[constraint].is_normal:
+            elif self.empirical_priors[empirical_prior].is_normal:
                 weights *= np.where(np.greater_equal(data["Deltam2_32"],0.0), weights_tmp, 1.0)
         
         if not self.finalized:

@@ -24,7 +24,7 @@ class PlotStack:
         self.plotted_variables = []
         self.plots = []
 
-    def add_plot(self,variables, priors, constraints, bins, axrange=None, mo_option=False):
+    def add_plot(self,variables, priors, empirical_priors, bins, axrange=None, mo_option=False):
         """
         Add a plot to the stack
   
@@ -32,8 +32,8 @@ class PlotStack:
                     Only 1D and 2D are currently supported. Custom variables can
                     be declared when through the mcmcsamples class
         :priors: a list of priors in the Funtion:Variable format
-        :constraints: A list of strings with the unique names of the constraints
-                      to be applied. If None, the constraints defined in the
+        :empirical_priors: A list of strings with the unique names of the empirical priors
+                      to be applied. If None, the empirical priors defined in the
                       MCMCSamples chain will be used.
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
@@ -60,29 +60,29 @@ class PlotStack:
                     logger.debug(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
                     plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], parsed_priors[var])
         
-        # Add the constraints to the plotting function
-        plot_constraints = {}
+        # Add the empirical_priors to the plotting function
+        plot_empirical_priors = {}
 
-        # First check if the user supplied any constraints. If not, check if the
-        # chain has any constraints to be applied by default
-        if constraints == None:
-            constraints = []
-            for constraint in self.chain.constraints:
-                if self.chain.constraints[constraint].applied_default:
-                    constraints.append(constraint)
+        # First check if the user supplied any empirical_priors. If not, check if the
+        # chain has any empirical_priors to be applied by default
+        if empirical_priors == None:
+            empirical_priors = []
+            for empirical_prior in self.chain.empirical_priors:
+                if self.chain.empirical_priors[empirical_prior].applied_default:
+                    empirical_priors.append(empirical_prior)
 
-        for constraint in constraints:
-            if constraint not in self.chain.constraints:
-                raise TypeError(f"The constraint you supplied in plot, {constraint}, is not defined in the MCMCSamples chain")
+        for empirical_prior in empirical_priors:
+            if empirical_prior not in self.chain.empirical_priors:
+                raise TypeError(f"The empirical prior you supplied in plot, {empirical_prior}, is not defined in the MCMCSamples chain")
 
-            logger.debug(f"Constraint for variable {constraint} supplied in plot: {variables}: {self.chain.constraints[constraint]}")
-            plot_constraints[constraint] = self.chain.constraints[constraint]
+            logger.debug(f"Empirical prior for variable {empirical_prior} supplied in plot: {variables}: {self.chain.empirical_priors[empirical_prior]}")
+            plot_empirical_priors[empirical_prior] = self.chain.empirical_priors[empirical_prior]
 
-            # Make sure we add the variables needed for the constraints to the plotted variables
+            # Make sure we add the variables needed for the empirical priors to the plotted variables
             # TODO Need to consolidate this with jacobians etc...
-            for var in self.chain.constraints[constraint].variables:
+            for var in self.chain.empirical_priors[empirical_prior].variables:
                 if var not in self.chain.variables:
-                    raise TypeError(f"The variable {var} in constraint {constraint} is not defined in the MCMCSamples chain")
+                    raise TypeError(f"The variable {var} in empirical prior {empirical_prior} is not defined in the MCMCSamples chain")
                 self.plotted_variables.append(var)
 
         # Crash if user supplied a non-existant variable
@@ -96,7 +96,7 @@ class PlotStack:
                 continue
             self.plotted_variables.append(var)
 
-        self.plots.append(Plot(variables, plot_jacobians, plot_constraints, bins, axrange, mo_option))
+        self.plots.append(Plot(variables, plot_jacobians, plot_empirical_priors, bins, axrange, mo_option))
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         """
