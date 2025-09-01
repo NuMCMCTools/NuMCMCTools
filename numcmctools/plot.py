@@ -53,16 +53,25 @@ class Plot:
             logger.error("too many or too few variables!")
             return
                 
-    def fill_plot(self, data, weights=None):
+    def fill_plot(self, 
+                  data: dict[str, np.ndarray],
+                  weights_data: dict[str, np.ndarray]=None):
         """
         Fill the plot. If the plot has been finalized, no more filling is allowed.
 
         :data: An array of the data
-        :weights: Data weights
+        :weights_data: Data weights dictionary, e.g. from empirical priors
         """
+        weights = np.ones(np.shape(data[self.variables[0]]))
 
-        if weights==None:
-            weights = np.ones(np.shape(data[self.variables[0]]))
+        for empirical_prior in self.empirical_priors:
+            if empirical_prior not in weights_data:
+                logger.error(f"Empirical prior {empirical_prior} weights array\
+                               not passed to the plot with variables: {self.variables},\
+                               empirical priors: {self.empirical_priors}, jacobians:\
+                               {self.jacobian_funcs.keys()}")
+                raise ValueError(f"Empirical prior {empirical_prior} weights array not passed to the plot!")
+            weights *= weights_data[empirical_prior]
 
         # Apply the jacobian transformation functions
         for var in self.jacobian_funcs:
@@ -70,23 +79,6 @@ class Plot:
                 continue
             # Apply the weight
             weights *= self.jacobian_funcs[var](data[var])
-        
-        # Apply the empirical priors
-        for empirical_prior in self.empirical_priors:
-            if not isinstance(self.empirical_priors[empirical_prior], EmpiricalPrior):
-                raise TypeError(f"Empirical prior {empirical_prior} is not an instance of EmpiricalPrior")
-            
-            if not self.empirical_priors[empirical_prior].is_inverted and not self.empirical_priors[empirical_prior].is_normal:
-                raise ValueError(f"Empirical prior {empirical_prior} must be either inverted and/or normal")
-            
-            weights_tmp = self.empirical_priors[empirical_prior](data)
-
-            if self.empirical_priors[empirical_prior].is_inverted and self.empirical_priors[empirical_prior].is_normal:
-                weights *= weights_tmp
-            elif self.empirical_priors[empirical_prior].is_inverted:
-                weights *= np.where(np.less_equal(data["Deltam2_32"],0.0), weights_tmp, 1.0)
-            elif self.empirical_priors[empirical_prior].is_normal:
-                weights *= np.where(np.greater_equal(data["Deltam2_32"],0.0), weights_tmp, 1.0)
         
         if not self.finalized:
             if(self.nvar==1):
