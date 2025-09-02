@@ -4,8 +4,9 @@ from numcmctools.variable import Variable
 from numcmctools.plotstack import PlotStack
 from numcmctools.plot import Plot 
 from numcmctools.jacobiangraph import JacobianGraph
+from numcmctools.empirical_priors import EmpiricalPrior
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s::%(levelname)s::%(name)s: - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s::%(levelname)s::%(name)s::%(lineno)s: - %(message)s')
 
 def set_external_logging_level(level):
     """

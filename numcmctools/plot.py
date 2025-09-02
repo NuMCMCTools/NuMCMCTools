@@ -2,20 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import logging
 from .jacobiangraph import JacobianGraph
+from .empirical_priors import EmpiricalPrior
 from typing import Union, List
 
 logger = logging.getLogger(__name__)
 
 class Plot:
-    def __init__(self, variables, jacobians, bins, axrange=None, mo_option=False):
+    def __init__(self, variables, jacobians, empirical_priors, bins, axrange=None, mo_option=False):
         """
         Initialise a Plot instance.
 
         :variables: Array of strings indicating the variables to be plotted.
                     Only 1D and 2D are currently supported. Custom variables can be declared
                     when through the mcmcsamples class
-        :priors: A dictionary of jacobian transform functions (can be None for
+        :jacobians: A dictionary of jacobian transform functions (can be None for
                  each parameter if no transformations are needed)
+        :empirical_priors: A dictionary of empirical_priors to be applied to the plot
+                      in the form of EmpiricalPriors objects
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
                or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
@@ -25,6 +28,7 @@ class Plot:
         """
         self.variables = variables
         self.jacobian_funcs = jacobians
+        self.empirical_priors = empirical_priors
         self.bins = bins
         self.axrange = axrange
         self.mo_option = mo_option
@@ -39,7 +43,7 @@ class Plot:
                 self.hist_no = np.zeros(np.shape(self.hist))
                 self.hist_io = np.zeros(np.shape(self.hist))
         elif(self.nvar==2):
-            self.hist, edgesx, edgesy = np.histogram2d([], [],self.bins, self.axrange, weights=[])
+            self.hist, edgesx, edgesy = np.histogram2d([], [], self.bins, self.axrange, weights=[])
             self.edges.append(edgesx)
             self.edges.append(edgesy)
             if self.mo_option:
@@ -49,16 +53,25 @@ class Plot:
             logger.error("too many or too few variables!")
             return
                 
-    def fill_plot(self, data, weights=None):
+    def fill_plot(self, 
+                  data: dict[str, np.ndarray],
+                  weights_data: dict[str, np.ndarray]=None):
         """
         Fill the plot. If the plot has been finalized, no more filling is allowed.
 
         :data: An array of the data
-        :weights: Data weights
+        :weights_data: Data weights dictionary, e.g. from empirical priors
         """
+        weights = np.ones(np.shape(data[self.variables[0]]))
 
-        if weights==None:
-            weights = np.ones(np.shape(data[self.variables[0]]))
+        for empirical_prior in self.empirical_priors:
+            if empirical_prior not in weights_data:
+                logger.error(f"Empirical prior {empirical_prior} weights array\
+                               not passed to the plot with variables: {self.variables},\
+                               empirical priors: {self.empirical_priors}, jacobians:\
+                               {self.jacobian_funcs.keys()}")
+                raise ValueError(f"Empirical prior {empirical_prior} weights array not passed to the plot!")
+            weights *= weights_data[empirical_prior]
 
         # Apply the jacobian transformation functions
         for var in self.jacobian_funcs:

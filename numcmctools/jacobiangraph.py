@@ -131,6 +131,39 @@ class JacobianGraph:
             return 'Uniform', [], prior.split(':')[-1].strip()
 
     @staticmethod
+    def variable_to_func(variable: str, variables: List[str]) -> Callable[[np.ndarray], np.ndarray]:
+        """
+        Converts a variable expression string to a function. The variable name
+        should match one of the pre-defined variables in the JacobianGraph
+        class.
+
+        :variable: Name of the variable to convert into a function
+        :variables: List of available variable names
+        :returns: Function that computes the variable value
+        """
+
+        for var in variables:
+            if var not in variable:
+                continue
+
+            expression = variable.replace(var, 'x')
+
+            if expression not in JacobianGraph.variables:
+                raise ValueError(f"Variable {expression} not found in currently supported variables: {list(JacobianGraph.variables.keys())}")
+            
+            # Return the function that computes the variable value
+            logger.debug(f"Creating function for variable {variable} with expression {expression} and base {var}")
+            func = sp.lambdify(JacobianGraph.x, JacobianGraph.variables[expression], modules=['numpy'])
+
+            func_code = f"def wrapped_function({var}):\n    return func({var})"
+            local_dict = {'func': func}
+            exec(func_code, local_dict)
+
+            return local_dict['wrapped_function']
+
+        raise ValueError(f"Variable {variable} not found in currently supported variables: {list(JacobianGraph.variables.keys())}")
+
+    @staticmethod
     def parse_priors(prior_list: List[str], variables: List[str]) -> Optional[Dict[str, str]]:
         """
         Static function that parses list of prior strings from

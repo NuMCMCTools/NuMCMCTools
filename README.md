@@ -32,6 +32,7 @@ the package and add your own macros that include the `numcmcmtools` folder.
 
 ## File Format
 
+### MCMC samples
 The expected input format for this code is a ROOT file containing at
 least one TTree. The tree can have any name. Inside the tree, there
 will be at least six branches called:
@@ -48,9 +49,10 @@ first four are the PMNS angles, and the last two are the mass
 splittings. For more information on the parameterization see the [PDG
 review on neutrino mixing](https://pdg.lbl.gov/2024/web/viewer.html?file=../reviews/rpp2024-rev-neutrino-mixing.pdf).
 
-Each parameter has some prior set by the original analyzers. The
-format of this information is a TList containing a TNamed for each branch,
-which specifies the name of the branch and its prior.
+### Priors
+Each parameter has some prior set by the original analyzers. The format of this
+information is a `TList` object named `priors`, containing a `TNamed` for each
+branch, which specifies the name of the branch and its prior.
 
 The priors are specified as:
 1. `Uniform` 
@@ -65,8 +67,28 @@ applies to. For example, a specification of
 
 indicates that the prior for Theta23 is uniform in $\sin^2\theta_{23}$.
 
+### Empirical priors
+
+Optionally, file can contain 1D or 2D empirical priors to be applied by default to the plots when the `empirical_priors` object input to `add_plot` function is set to `None`. For this, there needs to be a `TDirectoryFile` object named `empirical_priors`. Each empirical prior object inside that directory can be either `TGraph2D` or `THnD`. Additionally, a `TList` named `priors` needs to contain, a detailed metadata for each external empirical prior. The `TNamed` entry inside of `TList` must be in a format:
+
+1. Name: unique name that matches `TNamed` inside of `TList`
+2. Title: `EmpiricalPrior` prefix, to distinguish this from the standard functional priors.
+2. Title: parameter names separated by colon, e.g. `sin^2(2Theta13):abs(Deltam2_32)`
+3. Title: Optional string "NO" for empirical priors only applied to Normal Mass Ordering, IO for the Inverted mass ordering, or none for an empirical prior applied across both Mass Orderings.
+4. Title: 1 if the empirical prior should be applied automatically, or 0 if not.
+
+Example:
+1. `DayaBay2D_2024_IO` `EmpiricalPrior:sin^2(2Theta13):abs(Deltam2_32):IO:1` for a 2D constraint automatically applied in the Inverted Mass Ordering
+2. `some_constraint_from_theory` `EmpiricalPrior:sin^2(2Theta13):sin^2(Theta23):1` for a 2D constraint automatically applied across both mass orderings.
+
+The unique names for the empirical priors inside the `priors` `TList` must match the name of the `THnD` or `TGraph2D` inside of the `empirical_priors` `TDirectory`. Example provided in `examples/testchaindata.root`
+
+### Other
+
+
 The file additionally contains a citation to the original analysis that
-produced the chain.
+produced the chain. The citation must be inside of a `TObjString` object named
+`citation`.
 
 There may be additional information contained in the file; please see
 the data release from the particular analysis for more detail.

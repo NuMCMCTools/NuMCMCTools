@@ -1,6 +1,7 @@
 from .plot import Plot
 from .mcmcsamples import MCMCSamples
 from .jacobiangraph import JacobianGraph
+from .empirical_priors import EmpiricalPrior
 import numpy as np
 from tqdm import tqdm
 import logging
@@ -22,16 +23,20 @@ class PlotStack:
         self.chain = chain
         self.jacobian_graph = JacobianGraph()
         self.plotted_variables = []
+        self.plotted_empirical_priors = {}
         self.plots = []
 
-    def add_plot(self,variables, priors, bins, axrange=None, mo_option=False):
+    def add_plot(self,variables, priors, empirical_priors, bins, axrange=None, mo_option=False):
         """
         Add a plot to the stack
   
         :variables: Array of strings indicating the variables to be plotted.
-                    Only 1D and 2D are currently supported. Custom variables can be declared
-                    when through the mcmcsamples class
+                    Only 1D and 2D are currently supported. Custom variables can
+                    be declared when through the mcmcsamples class
         :priors: a list of priors in the Funtion:Variable format
+        :empirical_priors: A list of strings with the unique names of the empirical priors
+                      to be applied. If None, the empirical priors defined in the
+                      MCMCSamples chain will be used.
         :bins: number of bins or bin edges, formatted for either 1 or 2D as in the numpy
                documentation for histogram (https://numpy.org/doc/stable/reference/generated/numpy.histogram.html)
                or histogram2D (https://numpy.org/doc/stable/reference/generated/numpy.histogram2d.html)
@@ -57,6 +62,30 @@ class PlotStack:
                     logger.debug(f"Prior for variable {var} supplied in plot: {variables}: {parsed_priors[var]}")
                     plot_jacobians[var] = self.jacobian_graph.get_jacobian_func(self.chain.variable_priors[var], parsed_priors[var])
 
+        # First check if the user supplied any empirical_priors. If not, check if the
+        # chain has any empirical_priors to be applied by default
+        if empirical_priors == None:
+            empirical_priors = []
+            for empirical_prior in self.chain.empirical_priors:
+                if self.chain.empirical_priors[empirical_prior].applied_default:
+                    empirical_priors.append(empirical_prior)
+
+        for empirical_prior in empirical_priors:
+            if empirical_prior not in self.chain.empirical_priors:
+                raise TypeError(f"The empirical prior you supplied in plot, {empirical_prior}, is not defined in the MCMCSamples chain")
+
+            logger.debug(f"Empirical prior for variable {empirical_prior} supplied in plot: {variables}: {self.chain.empirical_priors[empirical_prior]}")
+            if empirical_prior in self.plotted_empirical_priors:
+                continue
+            self.plotted_empirical_priors[empirical_prior] = self.chain.empirical_priors[empirical_prior]
+
+            # Make sure we add the variables needed for the empirical priors to the plotted variables
+            # TODO Need to consolidate this with jacobians etc...
+            for var in self.chain.empirical_priors[empirical_prior].variables:
+                if var not in self.chain.variables:
+                    raise TypeError(f"The variable {var} in empirical prior {empirical_prior} is not defined in the MCMCSamples chain")
+                self.plotted_variables.append(var)
+
         # Crash if user supplied a non-existant variable
         for var in variables:
             if var not in self.chain.variables:
@@ -68,7 +97,7 @@ class PlotStack:
                 continue
             self.plotted_variables.append(var)
 
-        self.plots.append(Plot(variables, plot_jacobians, bins, axrange, mo_option))
+        self.plots.append(Plot(variables, plot_jacobians, self.plotted_empirical_priors.keys(), bins, axrange, mo_option))
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         """
@@ -94,9 +123,32 @@ class PlotStack:
                         batch[var] = self.chain.variables[var].evaluate(batch)
                     continue
                 batch[var] = self.chain.variables[var].evaluate(batch)
+            
+            # Calculate all the empirical prior weigths and store them in a
+            # dictionary of empirical prior name -> weights array. That
+            # dictionary will then be passed to the individual plots which will
+            # decide which empirical priors to use.
+            weights = {}
+            for empirical_prior in self.plotted_empirical_priors:
+                weights[empirical_prior] = np.ones(np.shape(batch[self.plotted_variables[0]]))
 
+                if not isinstance(self.plotted_empirical_priors[empirical_prior], EmpiricalPrior):
+                    raise TypeError(f"Empirical prior {empirical_prior} is not an instance of EmpiricalPrior")
+                
+                if not self.plotted_empirical_priors[empirical_prior].is_inverted and not self.plotted_empirical_priors[empirical_prior].is_normal:
+                    raise ValueError(f"Empirical prior {empirical_prior} must be either inverted and/or normal")
+                
+                weights_tmp = self.plotted_empirical_priors[empirical_prior](batch)
+
+                if self.plotted_empirical_priors[empirical_prior].is_inverted and self.plotted_empirical_priors[empirical_prior].is_normal:
+                    weights[empirical_prior] *= weights_tmp
+                elif self.plotted_empirical_priors[empirical_prior].is_inverted:
+                    weights[empirical_prior] *= np.where(np.less_equal(batch["Deltam2_32"],0.0), weights_tmp, 1.0)
+                elif self.plotted_empirical_priors[empirical_prior].is_normal:
+                    weights[empirical_prior] *= np.where(np.greater_equal(batch["Deltam2_32"],0.0), weights_tmp, 1.0)
+            
             for plot in self.plots:
-                plot.fill_plot(batch)
+                plot.fill_plot(batch, weights)
                 
         for plot in self.plots:
             plot.finalize_histogram()

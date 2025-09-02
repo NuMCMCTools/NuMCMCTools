@@ -4,7 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from numcmctools import PlotStack, MCMCSamples
+from numcmctools import PlotStack, MCMCSamples, EmpiricalPrior
 
 # Define custom variable: ssth23
 def ssth23(Theta23) ->np.ndarray:
@@ -36,7 +36,7 @@ def main(file: str, chain_name: str):
   ranges = [[0, 2*np.pi], [0.03, 0.16], [0.35, 0.65], [0.78, 0.91], [2.15, 2.65], [6, 9]]
 
   priors = ["Uniform:DeltaCP",
-            "Gaussian(0.085,0.003):sin^2(2Theta13)",
+            "Uniform:sin^2(2Theta13)",
             "Uniform:sin^2(2Theta12)",
             "Uniform:sin^2(Theta23)"]
 
@@ -47,6 +47,11 @@ def main(file: str, chain_name: str):
   samples.add_variable("AbsDm32", absdm32)
   samples.add_variable("Dm21", scaleddm21)
 
+  # empirical_priors set to None means the default empirical_priors from the MCMCSamples object will be used
+  # If empty list is provided, no empirical priors will be applied.
+  # If a list of unique external empirical priors is provided, those will be used.
+  empirical_priors = None
+
   # Add all the 1D and 2D plots we want into the stack
   stack = PlotStack(samples)
   for i, pl_i in enumerate(variable_names):
@@ -54,9 +59,9 @@ def main(file: str, chain_name: str):
       if i < j:
         continue
       if i == j:
-        stack.add_plot([variable_names[i]], priors, bins[i], ranges[i], True)
+        stack.add_plot([variable_names[i]], priors, empirical_priors, bins[i], ranges[i], True)
       else:
-        stack.add_plot([variable_names[j], variable_names[i]], priors, [bins[j], bins[i]], [ranges[j], ranges[i]], True)
+        stack.add_plot([variable_names[j], variable_names[i]], priors, empirical_priors, [bins[j], bins[i]], [ranges[j], ranges[i]], True)
 
   # Fill the plots
   stack.fill_plots()
