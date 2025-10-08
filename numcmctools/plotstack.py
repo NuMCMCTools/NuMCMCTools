@@ -97,7 +97,7 @@ class PlotStack:
                 continue
             self.plotted_variables.append(var)
 
-        self.plots.append(Plot(variables, plot_jacobians, self.plotted_empirical_priors.keys(), bins, axrange, mo_option))
+        self.plots.append(Plot(variables, plot_jacobians, self.plotted_empirical_priors.keys(), bins, axrange, mo_option)) 
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         """
