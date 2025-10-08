@@ -97,7 +97,7 @@ class PlotStack:
                 continue
             self.plotted_variables.append(var)
 
-        self.plots.append(Plot(variables, plot_jacobians, self.plotted_empirical_priors.keys(), bins, axrange, mo_option))
+        self.plots.append(Plot(variables, plot_jacobians, empirical_priors, bins, axrange, mo_option)) 
 
     def fill_plots(self,n_steps=None, batchsize=100000):
         """
@@ -173,7 +173,6 @@ class PlotStack:
         automatic dimensioning
 
         returns the figure, subfigures, and subplots
-
         """
         xplt=1
         yplt=1
