@@ -173,7 +173,6 @@ class PlotStack:
         automatic dimensioning
 
         returns the figure, subfigures, and subplots
-
         """
         xplt=1
         yplt=1
