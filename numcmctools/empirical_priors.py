@@ -56,16 +56,18 @@ class EmpiricalPrior:
         if interpolator_type == 'linear':
             # Cartesian product of bin centers
             mesh = np.meshgrid(*bin_centers, indexing="ij")
-            points = np.stack([m.flatten() for m in mesh], axis=-1) # (npoints, ndim)
             data = data.flatten()                                   # (npoints,)
+            points = np.stack([m.flatten() for m in mesh], axis=-1) # (npoints, ndim)
+            points_shape = points.shape
         elif interpolator_type == 'regular':
-            points = tuple(bin_centers)                             # ndim arrays
+            points = tuple(bin_centers) # ndim arrays
+            points_shape = [len(p) for p in points]
         else:
             raise ValueError(f"Unknown interpolator_type: {interpolator_type}")
 
         self.data = data
         self.points = points
-        logger.debug(f"Points shape: {self.points.shape}, z data shape: {self.data.shape}")
+        logger.debug(f"Points shape: {points_shape}, z data shape: {self.data.shape}")
 
     def _init_tgraph2d(self, tgraph2d, interpolator_type):
         ''' Initialize from a TGraph2D object with scattered data. 
@@ -76,9 +78,6 @@ class EmpiricalPrior:
         x_array = tgraph2d.member('fX')
         y_array = tgraph2d.member('fY')
         
-        if not (np.all((np.diff(x_array) >= 0))) and not (np.all((np.diff(y_array) >= 0))):
-            raise ValueError("The X and Y axis of the TGraph2D are not increasing.")
-
         if interpolator_type == 'linear':
             self.data = np.array(tgraph2d.member("fZ"))
             self.points = np.column_stack((x_array, y_array))
