@@ -1,5 +1,9 @@
 # NuMCMCTools
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13947181.svg)](https://zenodo.org/badge/DOI/10.5281/zenodo.13947181.svg)
+[![pypi version](https://img.shields.io/pypi/v/numcmctools.svg)](https://pypi.python.org/pypi/numcmctools)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 This package is intended as a lightweight tool to assist in analysis using 
 public releases of MCMC chains from neutrino oscillation analyses. The
 following experiments have released data compatible with this software:
