@@ -1,11 +1,14 @@
 # NuMCMCTools
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13947181.svg)](https://zenodo.org/badge/DOI/10.5281/zenodo.13947181.svg)
+[![pypi version](https://img.shields.io/pypi/v/numcmctools.svg)](https://pypi.python.org/pypi/numcmctools)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 This package is intended as a lightweight tool to assist in analysis using 
 public releases of MCMC chains from neutrino oscillation analyses. The
 following experiments have released data compatible with this software:
 
-* Experiment 1
-* Experiment 2
+1. NOvA collaboration: [Phys. Rev. D 106, 032004](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.012005) (2022), [DATA RELEASE](https://publicdocs.fnal.gov/cgi-bin/ShowDocument?docid=561)
 
 ## Installation
 
