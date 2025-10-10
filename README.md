@@ -4,8 +4,7 @@ This package is intended as a lightweight tool to assist in analysis using
 public releases of MCMC chains from neutrino oscillation analyses. The
 following experiments have released data compatible with this software:
 
-* Experiment 1
-* Experiment 2
+1. NOvA collaboration: [Phys. Rev. D 106, 032004](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.012005) (2022), [DATA RELEASE](https://publicdocs.fnal.gov/cgi-bin/ShowDocument?docid=561)
 
 ## Installation
 
