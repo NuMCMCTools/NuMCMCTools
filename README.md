@@ -9,7 +9,7 @@ public releases of MCMC chains from neutrino oscillation analyses. The
 following experiments have released data compatible with this software:
 
 - T2K collaboration: [Phys. Rev. Lett. 135, 261801](https://journals.aps.org/prl/abstract/10.1103/gh5j-5cwv) (2025), [DATA RELEASE](https://zenodo.org/records/17312780)
-- NOvA collaboration: [Phys. Rev. D 110, 012005](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.012005) (2022), [DATA RELEASE](https://publicdocs.fnal.gov/cgi-bin/ShowDocument?docid=561)
+- NOvA collaboration: [Phys. Rev. D 106, 032004](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.012005) (2022), [DATA RELEASE](https://publicdocs.fnal.gov/cgi-bin/ShowDocument?docid=561)
 
 ## Installation
 
