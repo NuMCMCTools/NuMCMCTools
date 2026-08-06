@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 logger = logging.getLogger(__name__)
 
 class PlotStack:
-    def __init__(self, chain: MCMCSamples):
+    def __init__(self, chain: MCMCSamples, filter_func: callable=None):
         """
         Initialise a PlotStack instance.
 
@@ -21,6 +21,7 @@ class PlotStack:
             raise TypeError(f"Expected MCMCSamples instance, got {type(chain).__name__}")
 
         self.chain = chain
+        self.filter_func = filter_func
         self.jacobian_graph = JacobianGraph()
         self.plotted_variables = []
         self.plotted_empirical_priors = {}
@@ -114,6 +115,12 @@ class PlotStack:
             n_batches = n_steps / batchsize
 
         for batch in tqdm(self.chain.tree.iterate(step_size=batchsize, library="np", entry_stop=n_steps), total=n_batches):
+
+            # Apply an optional filter function if provided
+            # This can be used for removing burn-in, only plotting NO, IO etc.
+            if self.filter_func is not None:
+                mask = self.filter_func(batch)
+                batch = {k: v[mask] for k, v in batch.items()}
 
             for var in self.plotted_variables:
                 # Skip variables that are already in the batch, unless they
